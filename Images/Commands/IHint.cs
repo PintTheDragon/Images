@@ -16,7 +16,7 @@ namespace Images.Commands
             HandleCommandObject obj = Util.HandleCommand(arguments, sender, out response, true, "ihint", "images.ihint");
             if (obj == null) return true;
 
-            var text = API.LocationToText(obj.image[1], obj.image[2] == "true", obj.scale);
+            var text = API.LocationToText(obj.image[1], obj.image[2] == "true", obj.scale).Replace("\\n", "\n");
             
             foreach (var player in Player.List)
             {

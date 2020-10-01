@@ -50,7 +50,7 @@ namespace Images
                     }
                 }
                 
-                ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = API.LocationToText(image[1], image[2] == "true", scale);;
+                ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = API.LocationToText(image[1], image[2] == "true", scale).Replace("\\n", "\n");
             }
         }
     }
