@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using CommandSystem;
 using Exiled.API.Features;
+using MEC;
+using UnityEngine;
 
 namespace Images.Commands
 {
@@ -16,15 +19,30 @@ namespace Images.Commands
             HandleCommandObject obj = Util.HandleCommand(arguments, sender, out response, true, "ihint", "images.ihint");
             if (obj == null) return true;
 
-            var text = API.LocationToText(obj.image["location"], obj.image["isURL"] == "true", obj.scale).Replace("\\n", "\n");
-            
-            foreach (var player in Player.List)
-            {
-                player.ShowHint(text, obj.duration);
-            }
+            Timing.RunCoroutine(Util.TimeoutCoroutine(Timing.RunCoroutine(ShowHint(obj))));
 
-            response = "Successfully displayed hint.";
+            response = "Creating image and displaying hint.";
             return true;
+        }
+
+        private IEnumerator<float> ShowHint(HandleCommandObject obj)
+        {
+            yield return Timing.WaitForSeconds(0.1f);
+
+            try
+            {
+                var text = API.LocationToText(obj.image["location"], obj.image["isURL"] == "true", obj.scale)
+                    .Replace("\\n", "\n");
+
+                foreach (var player in Player.List)
+                {
+                    player.ShowHint(text, obj.duration);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
+            }
         }
     }
 }

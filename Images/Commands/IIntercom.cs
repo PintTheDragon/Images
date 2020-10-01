@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using CommandSystem;
+using MEC;
 
 namespace Images.Commands
 {
@@ -15,12 +17,19 @@ namespace Images.Commands
             HandleCommandObject obj = Util.HandleCommand(arguments, sender, out response, false, "iintercom", "images.iintercom");
             if (obj == null) return true;
 
-            var text = API.LocationToText(obj.image["location"], obj.image["isURL"] == "true", obj.scale).Replace("\\n", "\n");
-
-            ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = text;
+            Timing.RunCoroutine(Util.TimeoutCoroutine(Timing.RunCoroutine(ShowIntercom(obj))));
 
             response = "Successfully set intercom text.";
             return true;
+        }
+
+        private IEnumerator<float> ShowIntercom(HandleCommandObject obj)
+        {
+            yield return Timing.WaitForSeconds(0.1f);
+            
+            var text = API.LocationToText(obj.image["location"], obj.image["isURL"] == "true", obj.scale).Replace("\\n", "\n");
+
+            ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = text;
         }
     }
 }

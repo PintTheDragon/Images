@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using CommandSystem;
 using Exiled.API.Features;
+using MEC;
 
 namespace Images.Commands
 {
@@ -16,15 +18,29 @@ namespace Images.Commands
             HandleCommandObject obj = Util.HandleCommand(arguments, sender, out response, true, "ibroadcast", "images.ibc");
             if (obj == null) return true;
 
-            var text = API.LocationToText(obj.image["location"], obj.image["isURL"] == "true", obj.scale);
-            
-            foreach (var player in Player.List)
-            {
-                player.Broadcast((ushort)obj.duration, text);
-            }
+            Timing.RunCoroutine(Util.TimeoutCoroutine(Timing.RunCoroutine(ShowBroadcast(obj))));
 
-            response = "Successfully broadcast image.";
+            response = "Creating image and displaying broadcast.";
             return true;
+        }
+
+        private IEnumerator<float> ShowBroadcast(HandleCommandObject obj)
+        {
+            yield return Timing.WaitForSeconds(0.1f);
+
+            try
+            {
+                var text = API.LocationToText(obj.image["location"], obj.image["isURL"] == "true", obj.scale);
+
+                foreach (var player in Player.List)
+                {
+                    player.Broadcast((ushort) obj.duration, text);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
+            }
         }
     }
 }

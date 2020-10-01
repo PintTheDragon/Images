@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CommandSystem;
+using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
+using MEC;
 using RemoteAdmin;
 
 namespace Images
@@ -71,6 +74,17 @@ namespace Images
             response = "Error";
 
             return new HandleCommandObject(imageList[0], duration, scale);
+        }
+
+        public static IEnumerator<float> TimeoutCoroutine(CoroutineHandle coroutine)
+        {
+            yield return Timing.WaitForSeconds(5f);
+
+            if (coroutine.IsRunning)
+            {
+                Log.Error("Creating an image took too long. Stopping execution.");
+                Timing.KillCoroutines(coroutine);
+            }
         }
     }
 }

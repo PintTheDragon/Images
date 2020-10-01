@@ -47,6 +47,8 @@ namespace Images
 
         public static string BitmapToText(Bitmap bitmap, float scale = 0f)
         {
+            if(bitmap.Height * bitmap.Width > 40000) throw new Exception("The image was too large. Please use an image with less that 40,000 pixels (you shouldn't have an image with 40,000 pixels anyway).");
+            
             var size = Convert.ToInt32(scale == 0f ? Math.Floor((-.47*(((bitmap.Width+bitmap.Height)/2 > 60 ? 45 : (bitmap.Width+bitmap.Height)/2)))+28.72) : scale);
             bitmap = new Bitmap(bitmap, new Size(Convert.ToInt32(bitmap.Width*(1+.03*size)), bitmap.Height));
             var text = "<size="+size+"%>";

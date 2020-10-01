@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Exiled.API.Features;
 using Exiled.API.Interfaces;
+using MEC;
 
 namespace Images
 {
@@ -49,9 +51,16 @@ namespace Images
                         return;
                     }
                 }
-                
-                ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = API.LocationToText(image["location"], image["isURL"] == "true", scale).Replace("\\n", "\n");
+
+                Timing.RunCoroutine(Util.TimeoutCoroutine(Timing.RunCoroutine(ShowIntercom(image, scale))));
             }
+        }
+
+        private IEnumerator<float> ShowIntercom(Dictionary<string, string> image, int scale)
+        {
+            yield return Timing.WaitForSeconds(0.1f);
+            
+            ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = API.LocationToText(image["location"], image["isURL"] == "true", scale).Replace("\\n", "\n");
         }
     }
 }
