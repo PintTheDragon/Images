@@ -9,9 +9,9 @@ using RemoteAdmin;
 
 namespace Images
 {
-    public class Util
+    internal static class Util
     {
-        public static HandleCommandObject HandleCommand(ArraySegment<string> arguments, ICommandSender sender, out string response, bool doDuration, string name, string perm)
+        internal static HandleCommandObject HandleCommand(ArraySegment<string> arguments, ICommandSender sender, out string response, bool doDuration, string name, string perm)
         {
             var permission = false;
             var perPermission = false;
@@ -76,7 +76,7 @@ namespace Images
             return new HandleCommandObject(imageList[0], duration, scale);
         }
 
-        public static IEnumerator<float> TimeoutCoroutine(CoroutineHandle coroutine)
+        internal static IEnumerator<float> TimeoutCoroutine(CoroutineHandle coroutine)
         {
             yield return Timing.WaitForSeconds(5f);
 
@@ -85,6 +85,42 @@ namespace Images
                 Log.Error("Creating an image took too long. Stopping execution.");
                 Timing.KillCoroutines(coroutine);
             }
+        }
+
+        internal static string LocationToText(string loc, string name, bool isURL = false, float scale = 0f, bool shapeCorrection = true)
+        {
+            if (Images.Singleton.ImageCache.Count > Images.Singleton.Config.CacheSize)
+            {
+                Images.Singleton.ImageCache.Remove(Images.Singleton.ImageCache.Keys.PickRandom());
+            }
+            
+            var text = "";
+            if (!Images.Singleton.ImageCache.ContainsKey(name))
+            {
+                text = API.LocationToText(loc, isURL, scale, shapeCorrection);
+                Images.Singleton.ImageCache[name] = text;
+            }
+            else
+            {
+                text = Images.Singleton.ImageCache[name];
+            }
+
+            return text;
+        }
+        
+        private static List<T> Shuffle<T>(this IEnumerable<T> source)
+        {
+            return source.OrderBy(x => Guid.NewGuid()).ToList();
+        }
+
+        private static T PickRandom<T>(this IEnumerable<T> source)
+        {
+            return source.PickRandom(1).Single();
+        }
+
+        private static List<T> PickRandom<T>(this IEnumerable<T> source, int count)
+        {
+            return source.Shuffle().Take(count).ToList();
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Images.Commands
 
             try
             {
-                Images.Singleton.IntercomText = API.LocationToText(obj.image["location"], obj.image["isURL"] == "true", obj.scale)
+                Images.Singleton.IntercomText = Util.LocationToText(obj.image["location"], obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale)
                     .Replace("\\n", "\n");
 
                 ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = Images.Singleton.IntercomText;

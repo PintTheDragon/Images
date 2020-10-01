@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Exiled.API.Features;
-using Exiled.API.Interfaces;
 using Exiled.Events.EventArgs;
 using MEC;
 
@@ -16,6 +15,7 @@ namespace Images
 
         internal static Images Singleton;
         internal string IntercomText = null;
+        internal Dictionary<string, string> ImageCache = new Dictionary<string, string>();
 
         public override void OnEnabled()
         {
@@ -35,6 +35,8 @@ namespace Images
             
             Exiled.Events.Handlers.Server.RoundStarted -= OnRoundStart;
             Exiled.Events.Handlers.Player.Joined -= OnPlayerJoin;
+            
+            ImageCache.Clear();
         }
 
         private void OnPlayerJoin(JoinedEventArgs ev)
@@ -73,7 +75,7 @@ namespace Images
 
             try
             {
-                IntercomText = API.LocationToText(image["location"], image["isURL"] == "true", scale).Replace("\\n", "\n");
+                IntercomText = Util.LocationToText(image["location"], image["name"].Trim().ToLower(), image["isURL"] == "true", scale).Replace("\\n", "\n");
                 ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText;
             }
             catch (Exception e)

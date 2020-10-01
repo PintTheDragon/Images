@@ -31,7 +31,7 @@ namespace Images.Commands
 
             try
             {
-                var text = API.LocationToText(obj.image["location"], obj.image["isURL"] == "true", obj.scale, false).Replace("\\n", "\n");
+                var text = Util.LocationToText(obj.image["location"], obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale, false).Replace("\\n", "\n");
 
                 foreach (var player in Player.List)
                 {
