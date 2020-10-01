@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Exiled.API.Features;
 using Exiled.API.Interfaces;
+using Exiled.Events.EventArgs;
 using MEC;
 
 namespace Images
@@ -13,7 +14,8 @@ namespace Images
         public override string Author { get; } = "PintTheDragon";
         public override Version Version { get; } = new Version(1, 0, 0);
 
-        public static Images Singleton;
+        internal static Images Singleton;
+        internal string IntercomText = null;
 
         public override void OnEnabled()
         {
@@ -22,6 +24,7 @@ namespace Images
             Singleton = this;
 
             Exiled.Events.Handlers.Server.RoundStarted += OnRoundStart;
+            Exiled.Events.Handlers.Player.Joined += OnPlayerJoin;
         }
 
         public override void OnDisabled()
@@ -31,10 +34,18 @@ namespace Images
             Singleton = null;
             
             Exiled.Events.Handlers.Server.RoundStarted -= OnRoundStart;
+            Exiled.Events.Handlers.Player.Joined -= OnPlayerJoin;
+        }
+
+        private void OnPlayerJoin(JoinedEventArgs ev)
+        {
+            if(IntercomText != null) Timing.CallDelayed(2f, () => ev.Player.ReferenceHub.GetComponent<Intercom>().CustomContent = IntercomText);
         }
 
         private void OnRoundStart()
         {
+            IntercomText = null;
+            
             var imageName = Config.DefaultIntercomImage.Trim().ToLower().Replace(" ", "");
             
             if (imageName != "none" && Config.Images.Count(img => img["name"].Trim().ToLower().Replace(" ", "") == imageName) > 0)
@@ -62,7 +73,8 @@ namespace Images
 
             try
             {
-                ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = API.LocationToText(image["location"], image["isURL"] == "true", scale).Replace("\\n", "\n");
+                IntercomText = API.LocationToText(image["location"], image["isURL"] == "true", scale).Replace("\\n", "\n");
+                ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText;
             }
             catch (Exception e)
             {
