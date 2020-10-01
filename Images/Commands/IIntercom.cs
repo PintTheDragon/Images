@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CommandSystem;
+using Exiled.API.Features;
 using MEC;
 
 namespace Images.Commands
@@ -26,10 +27,18 @@ namespace Images.Commands
         private IEnumerator<float> ShowIntercom(HandleCommandObject obj)
         {
             yield return Timing.WaitForSeconds(0.1f);
-            
-            var text = API.LocationToText(obj.image["location"], obj.image["isURL"] == "true", obj.scale).Replace("\\n", "\n");
 
-            ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = text;
+            try
+            {
+                var text = API.LocationToText(obj.image["location"], obj.image["isURL"] == "true", obj.scale)
+                    .Replace("\\n", "\n");
+
+                ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = text;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
+            }
         }
     }
 }
