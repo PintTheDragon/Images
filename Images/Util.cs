@@ -87,25 +87,25 @@ namespace Images
             }
         }
 
-        internal static string LocationToText(string loc, string name, bool isURL = false, float scale = 0f, bool shapeCorrection = true)
+        internal static void LocationToText(string loc, Action<string> handle, string name, bool isURL = false, float scale = 0f, bool shapeCorrection = true)
         {
             if (Images.Singleton.ImageCache.Count > Images.Singleton.Config.CacheSize)
             {
                 Images.Singleton.ImageCache.Remove(Images.Singleton.ImageCache.Keys.PickRandom());
             }
             
-            var text = "";
             if (!Images.Singleton.ImageCache.ContainsKey(name))
             {
-                text = API.LocationToText(loc, isURL, scale, shapeCorrection);
-                Images.Singleton.ImageCache[name] = text;
+                API.LocationToText(loc, data =>
+                {
+                    Images.Singleton.ImageCache[name] = data;
+                    handle(data);
+                }, isURL, scale, shapeCorrection);
             }
             else
             {
-                text = Images.Singleton.ImageCache[name];
+                handle(Images.Singleton.ImageCache[name]);
             }
-
-            return text;
         }
         
         private static List<T> Shuffle<T>(this IEnumerable<T> source)

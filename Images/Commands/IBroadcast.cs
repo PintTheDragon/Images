@@ -30,12 +30,13 @@ namespace Images.Commands
 
             try
             {
-                var text = Util.LocationToText(obj.image["location"], obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale);
-
-                foreach (var player in Player.List)
+                Util.LocationToText(obj.image["location"], text =>
                 {
-                    player.Broadcast((ushort) obj.duration, text);
-                }
+                    foreach (var player in Player.List)
+                    {
+                        player.Broadcast((ushort) obj.duration, text);
+                    }
+                }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale);
             }
             catch (Exception e)
             {

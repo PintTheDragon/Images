@@ -31,12 +31,14 @@ namespace Images.Commands
 
             try
             {
-                var text = Util.LocationToText(obj.image["location"], obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale, false).Replace("\\n", "\n");
-
-                foreach (var player in Player.List)
+                Util.LocationToText(obj.image["location"], text =>
                 {
-                    player.ShowHint(text, obj.duration);
-                }
+                    text = text.Replace("\\n", "\n");
+                    foreach (var player in Player.List)
+                    {
+                        player.ShowHint(text, obj.duration);
+                    }
+                }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale, false);
             }
             catch (Exception e)
             {

@@ -75,8 +75,11 @@ namespace Images
 
             try
             {
-                IntercomText = Util.LocationToText(image["location"], image["name"].Trim().ToLower(), image["isURL"] == "true", scale).Replace("\\n", "\n");
-                ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText;
+                 Util.LocationToText(image["location"], text =>
+                 {
+                     IntercomText = text.Replace("\\n", "\n");
+                    ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText;
+                }, image["name"].Trim().ToLower(), image["isURL"] == "true", scale);
             }
             catch (Exception e)
             {

@@ -30,10 +30,11 @@ namespace Images.Commands
 
             try
             {
-                Images.Singleton.IntercomText = Util.LocationToText(obj.image["location"], obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale)
-                    .Replace("\\n", "\n");
-
-                ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = Images.Singleton.IntercomText;
+                Util.LocationToText(obj.image["location"], text =>
+                {
+                    Images.Singleton.IntercomText = text.Replace("\\n", "\n");
+                    ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = Images.Singleton.IntercomText;
+                }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale);
             }
             catch (Exception e)
             {
