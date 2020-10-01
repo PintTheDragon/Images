@@ -13,13 +13,13 @@ namespace Images
             var permission = false;
             var perPermission = false;
 
-            if (arguments.Array == null || arguments.Array.Length < 3)
+            if (arguments.Array == null || arguments.Array.Length < (doDuration ? 3 : 2))
             {
                 response = "Usage: "+name+(doDuration ? " <time>" : "")+" <image name>";
                 return null;
             }
 
-            var imageName = arguments.Array[2].Trim().ToLower().Replace(" ", "");
+            var imageName = arguments.Array[(doDuration ? 2 : 1)].Trim().ToLower().Replace(" ", "");
             
             var duration = 0;
             if (doDuration)
