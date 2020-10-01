@@ -72,9 +72,10 @@
         <Compile Include="API.cs" />
         <Compile Include="Commands\IBroadcast.cs" />
         <Compile Include="Config.cs" />
-        <Compile Include="ImageData.cs" />
+        <Compile Include="HandleCommandObject.cs" />
         <Compile Include="Images.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="Util.cs" />
     </ItemGroup>
     <ItemGroup>
       <None Include="packages.config" />

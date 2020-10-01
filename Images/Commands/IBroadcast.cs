@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CommandSystem;
 using Exiled.API.Features;
@@ -16,51 +17,12 @@ namespace Images.Commands
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            var permission = false;
-            var perPermission = false;
-
-            if (arguments.Array == null || arguments.Array.Length < 3)
-            {
-                response = "Usage: ibroadcast <time> <image name>";
-                return true;
-            }
-
-            var imageName = arguments.Array[1].Trim().ToLower().Replace(" ", "");
-            if (!int.TryParse(arguments.Array[2].Trim(), out var duration))
-            {
-                response = "Usage: ibroadcast <time> <image name>";
-                return true;
-            }
-
-            if (sender is PlayerCommandSender p)
-            {
-                permission = p.CheckPermission("images.ibc");
-                perPermission = p.CheckPermission("images.image." + imageName);
-            }
-            else
-            {
-                permission = true;
-                perPermission = true;
-            }
-
-            if (!permission || (!perPermission && Images.Singleton.Config.PerImagePermissions))
-            {
-                response = "Permission denied.";
-                return true;
-            }
-            
-            var imageList = Images.Singleton.Config.Images.Where(img => imageName == img.Name.Trim().ToLower().Replace(" ", "")).ToArray();
-            if (imageList.Length < 1)
-            {
-                response = "No images for this name were found. Add the image to your config first.";
-                return true;
-            }
-
-            var image = imageList[0];
+            HandleCommandObject obj = Util.HandleCommand(arguments, sender, out response, true, "ibroadcast", "images.ibc");
+            if (obj == null) return true;
             
             foreach (var player in Player.List)
             {
-                player.Broadcast((ushort)duration, API.LocationToText(image.Location, image.isURL));
+                player.Broadcast((ushort)obj.duration, API.LocationToText(obj.image[1], obj.image[2] == "true", obj.scale));
             }
 
             response = "Successfully broadcast image.";

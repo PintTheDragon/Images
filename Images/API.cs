@@ -32,25 +32,25 @@ namespace Images
             return new Bitmap(path);
         }
 
-        private static string FileToText(string path)
+        private static string FileToText(string path, float scale = 0f)
         {
             var file = GetBitmapFromFile(path);
             if (file == null) return null;
 
-            return BitmapToText(file);
+            return BitmapToText(file, scale);
         }
 
-        private static string URLToText(string url)
+        private static string URLToText(string url, float scale = 0f)
         {
             var file = GetBitmapFromURL(url);
             if (file == null) return null;
 
-            return BitmapToText(file);
+            return BitmapToText(file, scale);
         }
 
-        public static string LocationToText(string loc, bool isURL = false)
+        public static string LocationToText(string loc, bool isURL = false, float scale = 0f)
         {
-            return isURL ? URLToText(loc) : FileToText(loc);
+            return isURL ? URLToText(loc, scale) : FileToText(loc, scale);
         }
 
         public static string BitmapToText(Bitmap bitmap, float scale = 0f)
