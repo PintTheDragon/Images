@@ -18,5 +18,8 @@ namespace Images
 
         [Description("Should you need a specific permission to use a specific image. Permission: images.image.IMAGE_NAME")]
         public bool PerImagePermissions { get; set; } = false;
+
+        [Description("This will override the default intercom with a specific image. If you want this, put the image name below, otherwise, set it to \"none\".")]
+        public string DefaultIntercomImage { get; set; } = "none";
     }
 }

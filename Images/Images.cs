@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Exiled.API.Features;
 using Exiled.API.Interfaces;
 
@@ -17,6 +18,8 @@ namespace Images
             base.OnEnabled();
 
             Singleton = this;
+
+            Exiled.Events.Handlers.Server.RoundStarted += OnRoundStart;
         }
 
         public override void OnDisabled()
@@ -24,6 +27,31 @@ namespace Images
             base.OnDisabled();
 
             Singleton = null;
+            
+            Exiled.Events.Handlers.Server.RoundStarted -= OnRoundStart;
+        }
+
+        private void OnRoundStart()
+        {
+            var imageName = Config.DefaultIntercomImage.Trim().ToLower().Replace(" ", "");
+            
+            if (imageName != "none" && Config.Images.Count(img => img[0].Trim().ToLower().Replace(" ", "") == imageName) > 0)
+            {
+                var image = Config.Images.First(img => img[0].Trim().ToLower().Replace(" ", "") == imageName);
+                
+                var scale = 0;
+
+                if (image[3].Trim().ToLower() != "auto")
+                {
+                    if (!int.TryParse(image[3].Trim().ToLower(), out scale))
+                    {
+                        Log.Error("The scale value for the custom intercom image is incorrect. Use an integer or \"auto\".");
+                        return;
+                    }
+                }
+                
+                ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = API.LocationToText(image[1], image[2] == "true", scale);;
+            }
         }
     }
 }

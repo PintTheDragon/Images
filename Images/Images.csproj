@@ -69,10 +69,18 @@
           <HintPath>lib\System.Drawing.dll</HintPath>
         </Reference>
         <Reference Include="System.Xml" />
+        <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>lib\UnityEngine.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>lib\UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
     </ItemGroup>
     <ItemGroup>
         <Compile Include="API.cs" />
         <Compile Include="Commands\IBroadcast.cs" />
+        <Compile Include="Commands\IHint.cs" />
+        <Compile Include="Commands\IIntercom.cs" />
         <Compile Include="Config.cs" />
         <Compile Include="HandleCommandObject.cs" />
         <Compile Include="Images.cs" />
