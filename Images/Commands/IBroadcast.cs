@@ -13,16 +13,18 @@ namespace Images.Commands
     {
         public string Command => "ibroadcast";
         public string[] Aliases => new string[] {"ibc"};
-        public string Description => "This is the command used to run custom events with EasyEvents.";
+        public string Description => "Send an image through a broadcast.";
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             HandleCommandObject obj = Util.HandleCommand(arguments, sender, out response, true, "ibroadcast", "images.ibc");
             if (obj == null) return true;
+
+            var text = API.LocationToText(obj.image[1], obj.image[2] == "true", obj.scale);
             
             foreach (var player in Player.List)
             {
-                player.Broadcast((ushort)obj.duration, API.LocationToText(obj.image[1], obj.image[2] == "true", obj.scale));
+                player.Broadcast((ushort)obj.duration, text);
             }
 
             response = "Successfully broadcast image.";

@@ -9,21 +9,13 @@ namespace Images
     {
         private static Bitmap GetBitmapFromURL(string url)
         {
-            var client = new WebClient();
-            var stream = client.OpenRead(url);
-
-            Bitmap bitmap = null;
-            if (stream != null)
+            using (var ms = new MemoryStream())
             {
-                bitmap = new Bitmap(stream);
+                WebRequest.Create(url)?.GetResponse()?.GetResponseStream()?.CopyTo(ms);
+                ms.Position = 0;
                 
-                stream.Flush();
-                stream.Close();
+                return new Bitmap(ms);
             }
-            
-            client.Dispose();
-
-            return bitmap;
         }
 
         private static Bitmap GetBitmapFromFile(string path)
@@ -73,7 +65,7 @@ namespace Images
                     var add = "";
                     
                     if(!pixel.Equals(pastPixel)){
-                        text+=(i != 0 ? "</color>" : "")+"<color="+colorString+">█";
+                        text+=((i == 0 && j == 0) ? "" : "</color>")+"<color="+colorString+">█";
                     }
                     else{
                         text+="█";
@@ -82,7 +74,7 @@ namespace Images
                     
                     pastPixel = pixel;
 
-                    if (j == bitmap.Width - 1) text += add+"\n";
+                    if (j == bitmap.Width - 1) text += add+"\\n";
                 }
             }
 
