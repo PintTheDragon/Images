@@ -14,8 +14,13 @@ namespace Images
             {
                 WebRequest.Create(url)?.GetResponse()?.GetResponseStream()?.CopyTo(ms);
                 ms.Position = 0;
+
+                Bitmap bitmap = new Bitmap(ms);
                 
-                return new Bitmap(ms);
+                ms.Flush();
+                ms.Dispose();
+                
+                return bitmap;
             }
         }
 
@@ -82,6 +87,8 @@ namespace Images
             }
             
             if(text.Length > 32000) throw new Exception("Output text is too large. Please use a smaller image.");
+            
+            bitmap.Dispose();
 
             return text + "</color></size>";
         }
