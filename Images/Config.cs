@@ -9,11 +9,23 @@ namespace Images
         [Description("Should the plugin be enabled or not.")]
         public bool IsEnabled { get; set; } = true;
 
-        [Description("This is the list of every image. You need to add your image here before it can be used ingame.")]
-        public List<string[]> Images { get; set; } = new List<string[]>(
+        [Description("This is the list of every image. You need to add your image here before it can be used ingame. Also, if you're using a url, make sure to set \"isURL\" to \"true\"!")]
+        public List<Dictionary<string, string>> Images { get; set; } = new List<Dictionary<string, string>>(
         new []{
-            new [] {"example1", "C:\\Temp\\example.png", "false", "auto"},
-            new [] {"example3", "https://pint.cloud/img2txt/smallimg.png", "true", "26"}
+            new Dictionary<string, string>()
+            {
+                {"name", "example1"},
+                {"location", "C:\\Temp\\example.png"},
+                {"isURL", "false"},
+                {"scale", "auto"}
+            },
+            new Dictionary<string, string>()
+            {
+                {"name", "example2"},
+                {"location", "https://pint.cloud/img2txt/smallimg.png"},
+                {"isURL", "true"},
+                {"scale", "26"}
+            }
         });
 
         [Description("Should you need a specific permission to use a specific image. Permission: images.image.IMAGE_NAME")]

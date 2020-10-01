@@ -48,7 +48,7 @@ namespace Images
                 return null;
             }
             
-            var imageList = Images.Singleton.Config.Images.Where(img => imageName == img[0].Trim().ToLower().Replace(" ", "")).ToArray();
+            var imageList = Images.Singleton.Config.Images.Where(img => imageName == img["name"].Trim().ToLower().Replace(" ", "")).ToArray();
             if (imageList.Length < 1)
             {
                 response = "No images for this name were found. Add the image to your config first.";
@@ -59,9 +59,9 @@ namespace Images
 
             var scale = 0;
 
-            if (image[3].Trim().ToLower() != "auto")
+            if (image["scale"].Trim().ToLower() != "auto")
             {
-                if (!int.TryParse(image[3].Trim().ToLower(), out scale))
+                if (!int.TryParse(image["scale"].Trim().ToLower(), out scale))
                 {
                     response = "The scale parameter for this image is invalid. Only use integers or \"auto\".";
                     return null;

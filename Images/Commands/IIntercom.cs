@@ -15,7 +15,7 @@ namespace Images.Commands
             HandleCommandObject obj = Util.HandleCommand(arguments, sender, out response, false, "iintercom", "images.iintercom");
             if (obj == null) return true;
 
-            var text = API.LocationToText(obj.image[1], obj.image[2] == "true", obj.scale).Replace("\\n", "\n");
+            var text = API.LocationToText(obj.image["location"], obj.image["isURL"] == "true", obj.scale).Replace("\\n", "\n");
 
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = text;
 

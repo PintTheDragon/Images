@@ -8,7 +8,7 @@ namespace Images.Commands
     public class IBroadcast : ICommand
     {
         public string Command => "ibroadcast";
-        public string[] Aliases => new string[] {"ibc"};
+        public string[] Aliases => new string[] {"ibc", "imagebc", "imagebroadcast"};
         public string Description => "Send an image through a broadcast.";
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
@@ -16,7 +16,7 @@ namespace Images.Commands
             HandleCommandObject obj = Util.HandleCommand(arguments, sender, out response, true, "ibroadcast", "images.ibc");
             if (obj == null) return true;
 
-            var text = API.LocationToText(obj.image[1], obj.image[2] == "true", obj.scale);
+            var text = API.LocationToText(obj.image["location"], obj.image["isURL"] == "true", obj.scale);
             
             foreach (var player in Player.List)
             {
