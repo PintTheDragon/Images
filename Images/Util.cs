@@ -11,6 +11,7 @@ namespace Images
 {
     internal static class Util
     {
+        static CoroutineHandle ActiveJob;
         internal static HandleCommandObject HandleCommand(ArraySegment<string> arguments, ICommandSender sender, out string response, bool doDuration, string name, string perm)
         {
             var permission = false;
@@ -96,7 +97,8 @@ namespace Images
             
             if (!Images.Singleton.ImageCache.ContainsKey(name))
             {
-                API.LocationToText(loc, data =>
+                if (ActiveJob.IsRunning) Timing.KillCoroutines(ActiveJob);
+                ActiveJob = API.LocationToText(loc, data =>
                 {
                     Images.Singleton.ImageCache[name] = data;
                     handle(data);

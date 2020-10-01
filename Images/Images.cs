@@ -41,7 +41,7 @@ namespace Images
 
         private void OnPlayerJoin(JoinedEventArgs ev)
         {
-            if(IntercomText != null) Timing.CallDelayed(2f, () => ev.Player.ReferenceHub.GetComponent<Intercom>().CustomContent = IntercomText);
+            //if(IntercomText != null) Timing.CallDelayed(2f, () => ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText);
         }
 
         private void OnRoundStart()
@@ -76,9 +76,9 @@ namespace Images
             try
             {
                  Util.LocationToText(image["location"], text =>
-                 {
+                 { 
                      IntercomText = text.Replace("\\n", "\n");
-                    ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText;
+                     ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText;
                 }, image["name"].Trim().ToLower(), image["isURL"] == "true", scale);
             }
             catch (Exception e)

@@ -1,74 +1,95 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
 using Exiled.API.Features;
+using MEC;
 
 namespace Images
 {
     public static class API
     {
-        private static Bitmap GetBitmapFromURL(string url)
+        private static Image GetBitmapFromURL(string url)
         {
-            using (var ms = new MemoryStream())
-            {
-                WebRequest.Create(url)?.GetResponse()?.GetResponseStream()?.CopyTo(ms);
-                ms.Position = 0;
+            var ms = new MemoryStream();
+            
+            var stream = WebRequest.Create(url)?.GetResponse()?.GetResponseStream();
+            if (stream == null) return null;
+                
+            stream.CopyTo(ms);
+            ms.Position = 0;
 
-                Bitmap bitmap = new Bitmap(ms);
+            Image image = Image.FromStream(ms);
                 
-                ms.Flush();
-                ms.Dispose();
+            stream.Flush();
+            stream.Dispose();
                 
-                return bitmap;
+            return image;
             }
-        }
 
-        private static Bitmap GetBitmapFromFile(string path)
+        private static Image GetBitmapFromFile(string path)
         {
             if (!File.Exists(path)) return null;
-            return new Bitmap(path);
+
+            return Image.FromFile(path);
         }
 
-        private static void FileToText(string path, Action<string> handle, float scale = 0f, bool shapeCorrection = true)
+        private static CoroutineHandle FileToText(string path, Action<string> handle, float scale = 0f, bool shapeCorrection = true)
         {
             var file = GetBitmapFromFile(path);
-            if (file == null) return;
+            if (file == null) return new CoroutineHandle();
 
-            BitmapToText(file, handle, scale, shapeCorrection);
+            return BitmapToText(file, handle, scale, shapeCorrection);
         }
 
-        private static void URLToText(string url, Action<string> handle, float scale = 0f, bool shapeCorrection = true)
+        private static CoroutineHandle URLToText(string url, Action<string> handle, float scale = 0f, bool shapeCorrection = true)
         {
             var file = GetBitmapFromURL(url);
-            if (file == null) return;
+            if (file == null) return new CoroutineHandle();
 
-            BitmapToText(file, handle, scale, shapeCorrection);
+            return BitmapToText(file, handle, scale, shapeCorrection);
         }
 
-        public static void LocationToText(string loc, Action<string> handle, bool isURL = false, float scale = 0f, bool shapeCorrection = true)
+        public static CoroutineHandle LocationToText(string loc, Action<string> handle, bool isURL = false, float scale = 0f, bool shapeCorrection = true)
         {
             if (isURL)
             {
-                URLToText(loc, handle, scale, shapeCorrection);
+                return URLToText(loc, handle, scale, shapeCorrection);
             }
             else
             {
-                FileToText(loc, handle, scale, shapeCorrection);
+                return FileToText(loc, handle, scale, shapeCorrection);
             }
         }
 
-        public static void BitmapToText(Bitmap bitmap, Action<string> handle, float scale = 0f, bool shapeCorrection = true)
+        public static CoroutineHandle BitmapToText(Image bitmap, Action<string> handle, float scale = 0f, bool shapeCorrection = true)
         {
-            if(bitmap.Height * bitmap.Width > 1000) throw new Exception("The image was too large. Please use an image with less that 1,000 pixels (you shouldn't have an image with 40,000 pixels anyway).");
+            return Timing.RunCoroutine(_BitmapToText(bitmap, handle, scale, shapeCorrection));
+        }
 
-            var size = Convert.ToInt32(scale == 0f ? Math.Floor((-.47*(((bitmap.Width+bitmap.Height)/2 > 60 ? 45 : (bitmap.Width+bitmap.Height)/2)))+28.72) : scale);
-            if(shapeCorrection) bitmap = new Bitmap(bitmap, new Size(Convert.ToInt32(bitmap.Width*(1+.03*size)), bitmap.Height));
+        private static IEnumerator<float> _BitmapToText(Image image, Action<string> handle, float scale = 0f, bool shapeCorrection = true)
+        {
+            if (image == null) yield break;
+            
+            var size = 0f;
 
-            for (var index = 0; index < bitmap.GetFrameCount(FrameDimension.Time); index++)
+            var dim = new FrameDimension(image.FrameDimensionsList[0]);
+
+            for (var index = 0; index < image.GetFrameCount(dim); index++)
             {
-                bitmap.SelectActiveFrame(FrameDimension.Time, index);
+                image.SelectActiveFrame(dim, index);
+
+                if (size == 0f)
+                {
+                    if(image.Size.Height * image.Size.Width > 1000) throw new Exception("The image was too large. Please use an image with less that 1,000 pixels (you shouldn't have an image with 40,000 pixels anyway).");
+                    size = Convert.ToInt32(scale == 0f ? Math.Floor((-.47*(((image.Size.Width+image.Size.Height)/2 > 60 ? 45 : (image.Width+image.Height)/2)))+28.72) : scale);
+                }
+
+                Bitmap bitmap;
+                if(shapeCorrection) bitmap = new Bitmap(image, new Size(Convert.ToInt32(image.Size.Width*(1+.03*size)), image.Size.Height));
+                else bitmap = new Bitmap(image);
                 
                 var text = "<size=" + size + "%>";
 
@@ -107,9 +128,11 @@ namespace Images
                 if (text.Length > 32000) throw new Exception("Output text is too large. Please use a smaller image.");
 
                 handle(text);
+
+                yield return Timing.WaitForSeconds(.1f);
             }
 
-            bitmap.Dispose();
+            image.Dispose();
         }
     }
 }
