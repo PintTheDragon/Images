@@ -98,15 +98,26 @@ namespace Images
             if (!Images.Singleton.ImageCache.ContainsKey(name))
             {
                 if (ActiveJob.IsRunning) Timing.KillCoroutines(ActiveJob);
+                Images.Singleton.ImageCache[name] = new List<string>();
                 ActiveJob = API.LocationToText(loc, data =>
                 {
-                    Images.Singleton.ImageCache[name] = data;
+                    Images.Singleton.ImageCache[name].Add(data);
                     handle(data);
                 }, isURL, scale, shapeCorrection);
             }
             else
             {
-                handle(Images.Singleton.ImageCache[name]);
+                if (ActiveJob.IsRunning) Timing.KillCoroutines(ActiveJob);
+                ActiveJob = Timing.RunCoroutine(LoopCache(handle, name));
+            }
+        }
+
+        private static IEnumerator<float> LoopCache(Action<string> handle, string name)
+        {
+            foreach (var s in Images.Singleton.ImageCache[name])
+            {
+                handle(s);
+                yield return Timing.WaitForSeconds(0.1f);
             }
         }
         

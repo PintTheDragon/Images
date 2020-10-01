@@ -15,7 +15,7 @@ namespace Images
 
         internal static Images Singleton;
         internal string IntercomText = null;
-        internal Dictionary<string, string> ImageCache = new Dictionary<string, string>();
+        internal Dictionary<string, List<string>> ImageCache = new Dictionary<string, List<string>>();
 
         public override void OnEnabled()
         {

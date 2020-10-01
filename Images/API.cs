@@ -69,7 +69,7 @@ namespace Images
             return Timing.RunCoroutine(_BitmapToText(bitmap, handle, scale, shapeCorrection));
         }
 
-        private static IEnumerator<float> _BitmapToText(Image image, Action<string> handle, float scale = 0f, bool shapeCorrection = true)
+        private static IEnumerator<float> _BitmapToText(Image image, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = 1f)
         {
             if (image == null) yield break;
             
@@ -129,7 +129,7 @@ namespace Images
 
                 handle(text);
 
-                yield return Timing.WaitForSeconds(.1f);
+                yield return Timing.WaitForSeconds(0.1f);
             }
 
             image.Dispose();
