@@ -102,11 +102,8 @@ namespace Images
                     {
                         Color pixel = bitmap.GetPixel(j, i);
 
-                        var colorString = "#" + pixel.R.ToString("X2") + pixel.G.ToString("X2") +
-                                          pixel.B.ToString("X2") + pixel.A.ToString("X2");
-
-                        var add = "";
-
+                        var colorString = "#" + pixel.R.ToString("X2") + pixel.G.ToString("X2") + pixel.B.ToString("X2") + pixel.A.ToString("X2");
+                        
                         if (!pixel.Equals(pastPixel))
                         {
                             text += ((i == 0 && j == 0) ? "" : "</color>") + "<color=" + colorString + ">█";
@@ -114,22 +111,23 @@ namespace Images
                         else
                         {
                             text += "█";
-                            add = "</color>";
                         }
 
                         pastPixel = pixel;
 
-                        if (j == bitmap.Width - 1) text += add + "\\n";
+                        if (j == bitmap.Width - 1) text += "\\n";
                     }
                 }
+
+                if (!text.EndsWith("</color>\\n") && !text.EndsWith("</color>")) text += "</color>";
                 
-                text+="</color></size>";
+                text+="</size>";
 
                 if (text.Length > 32000) throw new Exception("Output text is too large. Please use a smaller image.");
 
                 handle(text);
 
-                yield return Timing.WaitForSeconds(0.1f);
+                yield return Timing.WaitForSeconds(.1f);
             }
 
             image.Dispose();
