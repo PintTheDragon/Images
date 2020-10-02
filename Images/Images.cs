@@ -25,6 +25,7 @@ namespace Images
 
             Exiled.Events.Handlers.Server.RoundStarted += OnRoundStart;
             Exiled.Events.Handlers.Player.Joined += OnPlayerJoin;
+            Exiled.Events.Handlers.Server.ReloadedConfigs += OnConfigReloaded;
         }
 
         public override void OnDisabled()
@@ -35,13 +36,19 @@ namespace Images
             
             Exiled.Events.Handlers.Server.RoundStarted -= OnRoundStart;
             Exiled.Events.Handlers.Player.Joined -= OnPlayerJoin;
+            Exiled.Events.Handlers.Server.ReloadedConfigs -= OnConfigReloaded;
             
             ImageCache.Clear();
         }
 
         private void OnPlayerJoin(JoinedEventArgs ev)
         {
-            //if(IntercomText != null) Timing.CallDelayed(2f, () => ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText);
+            if(IntercomText != null) Timing.CallDelayed(2f, () => ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText);
+        }
+
+        private void OnConfigReloaded()
+        {
+            ImageCache.Clear();
         }
 
         private void OnRoundStart()

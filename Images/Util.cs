@@ -98,9 +98,9 @@ namespace Images
             if (!Images.Singleton.ImageCache.ContainsKey(name))
             {
                 if (ActiveJob.IsRunning) Timing.KillCoroutines(ActiveJob);
-                Images.Singleton.ImageCache[name] = new List<string>();
                 ActiveJob = API.LocationToText(loc, data =>
                 {
+                    if(!Images.Singleton.ImageCache.ContainsKey(name)) Images.Singleton.ImageCache[name] = new List<string>();
                     Images.Singleton.ImageCache[name].Add(data);
                     handle(data);
                 }, isURL, scale, shapeCorrection);
