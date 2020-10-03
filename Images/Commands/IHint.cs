@@ -19,7 +19,7 @@ namespace Images.Commands
             HandleCommandObject obj = Util.HandleCommand(arguments, sender, out response, true, "ihint", "images.ihint");
             if (obj == null) return true;
 
-            Timing.RunCoroutine(Util.TimeoutCoroutine(Timing.RunCoroutine(ShowHint(obj))));
+            Timing.RunCoroutine(ShowHint(obj));
 
             response = "Creating image and displaying hint.";
             return true;
@@ -27,22 +27,28 @@ namespace Images.Commands
 
         private IEnumerator<float> ShowHint(HandleCommandObject obj)
         {
-            yield return Timing.WaitForSeconds(0.1f);
-
-            try
-            {
-                Util.LocationToText(obj.image["location"], text =>
+            List<string> frames = new List<string>();
+            
+            yield return Timing.WaitUntilDone(Util.LocationToText(obj.image["location"], text =>
                 {
-                    text = text.Replace("\\n", "\n");
-                    foreach (var player in Player.List)
-                    {
-                        player.ShowHint(text, obj.duration);
-                    }
-                }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale, false);
-            }
-            catch (Exception e)
+                    frames.Add(text.Replace("\\n", "\n"));
+                }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale, false)
+            );
+
+            var startTime = DateTime.UtcNow;
+
+            var cur = 0;
+                
+            while (DateTime.UtcNow - startTime < TimeSpan.FromSeconds(obj.duration))
             {
-                Log.Error(e);
+                foreach (var player in Player.List)
+                {
+                    player.ShowHint(frames[cur % frames.Count], 2f);
+                }
+
+                yield return Timing.WaitForSeconds(.4f);
+
+                cur++;
             }
         }
     }

@@ -88,7 +88,7 @@ namespace Images
             }
         }
 
-        internal static void LocationToText(string loc, Action<string> handle, string name, bool isURL = false, float scale = 0f, bool shapeCorrection = true)
+        internal static CoroutineHandle LocationToText(string loc, Action<string> handle, string name, bool isURL = false, float scale = 0f, bool shapeCorrection = true)
         {
             if (Images.Singleton.ImageCache.Count > Images.Singleton.Config.CacheSize)
             {
@@ -110,6 +110,8 @@ namespace Images
                 if (ActiveJob.IsRunning) Timing.KillCoroutines(ActiveJob);
                 ActiveJob = Timing.RunCoroutine(LoopCache(handle, name));
             }
+
+            return ActiveJob;
         }
 
         private static IEnumerator<float> LoopCache(Action<string> handle, string name)
@@ -117,7 +119,7 @@ namespace Images
             foreach (var s in Images.Singleton.ImageCache[name])
             {
                 handle(s);
-                yield return Timing.WaitForSeconds(0.1f);
+                yield return Timing.WaitForSeconds(.1f);
             }
         }
         

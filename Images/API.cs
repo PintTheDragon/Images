@@ -52,6 +52,14 @@ namespace Images
             return BitmapToText(file, handle, scale, shapeCorrection);
         }
 
+        /// <summary>
+        /// Converts an image from a File Path or URL to some text.
+        /// </summary>
+        /// <param name="loc">The File Path/URL of the image.</param>
+        /// <param name="handle">An <see cref="Action<string>"/> that will be ran for each frame of the image.</param>
+        /// <param name="isURL">Whether the location is a URL.</param>
+        /// <param name="scale">The <see cref="float"/> that determines the scale. Leave at default to automatically calculate scale.</param>
+        /// <param name="shapeCorrection">Whether the shape of the image should be automatically corrected.</param>
         public static CoroutineHandle LocationToText(string loc, Action<string> handle, bool isURL = false, float scale = 0f, bool shapeCorrection = true)
         {
             if (isURL)
@@ -64,12 +72,19 @@ namespace Images
             }
         }
 
+        /// <summary>
+        /// Converts an image to some text.
+        /// </summary>
+        /// <param name="image">The <see cref="Image"/> that will be converted to text.</param>
+        /// <param name="handle">An <see cref="Action<string>"/> that will be ran for each frame of the image.</param>
+        /// <param name="scale">The <see cref="float"/> that determines the scale. Leave at default to automatically calculate scale.</param>
+        /// <param name="shapeCorrection">Whether or not the shape of the image should be automatically corrected.</param>
         public static CoroutineHandle BitmapToText(Image bitmap, Action<string> handle, float scale = 0f, bool shapeCorrection = true)
         {
             return Timing.RunCoroutine(_BitmapToText(bitmap, handle, scale, shapeCorrection));
         }
-
-        private static IEnumerator<float> _BitmapToText(Image image, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = 1f)
+        
+        private static IEnumerator<float> _BitmapToText(Image image, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
         {
             if (image == null) yield break;
             
@@ -127,7 +142,7 @@ namespace Images
 
                 handle(text);
 
-                yield return Timing.WaitForSeconds(.1f);
+                yield return Timing.WaitForSeconds(waitTime);
             }
 
             image.Dispose();
