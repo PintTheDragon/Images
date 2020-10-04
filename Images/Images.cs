@@ -120,15 +120,18 @@ namespace Images
             yield return Timing.WaitUntilDone(handle);
 
             var cur = 0;
-            
-            while (true)
+
+            if (frames.Count > 1)
             {
-                IntercomText = frames[cur % frames.Count];
-                ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText;
+                while (true)
+                {
+                    IntercomText = frames[cur % frames.Count];
+                    ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText;
 
-                yield return Timing.WaitForSeconds(.1f);
+                    yield return Timing.WaitForSeconds(.1f);
 
-                cur++;
+                    cur++;
+                }
             }
         }
     }

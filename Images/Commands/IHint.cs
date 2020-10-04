@@ -55,17 +55,20 @@ namespace Images.Commands
             yield return Timing.WaitUntilDone(handle);
 
             var cur = 0;
-                
-            while (DateTime.UtcNow - startTime < TimeSpan.FromSeconds(obj.duration))
+
+            if (frames.Count > 1)
             {
-                foreach (var player in Player.List)
+                while (DateTime.UtcNow - startTime < TimeSpan.FromSeconds(obj.duration))
                 {
-                    player.ShowHint(frames[cur % frames.Count], 2f);
+                    foreach (var player in Player.List)
+                    {
+                        player.ShowHint(frames[cur % frames.Count], 2f);
+                    }
+
+                    yield return Timing.WaitForSeconds(.4f);
+
+                    cur++;
                 }
-
-                yield return Timing.WaitForSeconds(.4f);
-
-                cur++;
             }
         }
     }
