@@ -15,10 +15,13 @@ namespace Images.Commands
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            HandleCommandObject obj = Util.HandleCommand(arguments, sender, out response, false, "iintercom", "images.iintercom");
+            HandleCommandObject obj =
+                Util.HandleCommand(arguments, sender, out response, false, "iintercom", "images.iintercom");
             if (obj == null) return true;
 
-            Timing.RunCoroutine(Util.TimeoutCoroutine(Timing.RunCoroutine(ShowIntercom(obj))));
+            if (Images.Singleton.IntercomHandle.IsRunning) Timing.KillCoroutines(Images.Singleton.IntercomHandle);
+            Images.Singleton.IntercomHandle = Timing.RunCoroutine(ShowIntercom(obj));
+            Images.Singleton.Coroutines.Add(Images.Singleton.IntercomHandle);
 
             response = "Successfully set intercom text.";
             return true;
@@ -26,19 +29,36 @@ namespace Images.Commands
 
         private IEnumerator<float> ShowIntercom(HandleCommandObject obj)
         {
-            yield return Timing.WaitForSeconds(0.1f);
-
+            List<string> frames = new List<string>();
+            
+            var handle = new CoroutineHandle();
             try
             {
-                Util.LocationToText(obj.image["location"], text =>
-                {
-                    Images.Singleton.IntercomText = text.Replace("\\n", "\n");
-                    ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = Images.Singleton.IntercomText;
-                }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale);
+                handle = Util.LocationToText(obj.image["location"], text =>
+                    {
+                        Images.Singleton.IntercomText = text.Replace("\\n", "\n");
+                        ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = Images.Singleton.IntercomText;
+                        frames.Add(Images.Singleton.IntercomText);
+                    }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale);
+                Images.Singleton.Coroutines.Add(handle);
             }
             catch (Exception e)
             {
                 Log.Error(e);
+            }
+
+            yield return Timing.WaitUntilDone(handle);
+
+            var cur = 0;
+            
+            while (true)
+            {
+                Images.Singleton.IntercomText = frames[cur % frames.Count];
+                ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = Images.Singleton.IntercomText;
+
+                yield return Timing.WaitForSeconds(.1f);
+
+                cur++;
             }
         }
     }

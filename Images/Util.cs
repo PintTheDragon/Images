@@ -77,18 +77,7 @@ namespace Images
             return new HandleCommandObject(imageList[0], duration, scale);
         }
 
-        internal static IEnumerator<float> TimeoutCoroutine(CoroutineHandle coroutine)
-        {
-            yield return Timing.WaitForSeconds(5f);
-
-            if (coroutine.IsRunning)
-            {
-                Log.Error("Creating an image took too long. Stopping execution.");
-                Timing.KillCoroutines(coroutine);
-            }
-        }
-
-        internal static CoroutineHandle LocationToText(string loc, Action<string> handle, string name, bool isURL = false, float scale = 0f, bool shapeCorrection = true)
+        internal static CoroutineHandle LocationToText(string loc, Action<string> handle, string name, bool isURL = false, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
         {
             if (Images.Singleton.ImageCache.Count > Images.Singleton.Config.CacheSize)
             {
@@ -103,13 +92,15 @@ namespace Images
                     if(!Images.Singleton.ImageCache.ContainsKey(name)) Images.Singleton.ImageCache[name] = new List<string>();
                     Images.Singleton.ImageCache[name].Add(data);
                     handle(data);
-                }, isURL, scale, shapeCorrection);
+                }, isURL, scale, shapeCorrection, waitTime);
             }
             else
             {
                 if (ActiveJob.IsRunning) Timing.KillCoroutines(ActiveJob);
                 ActiveJob = Timing.RunCoroutine(LoopCache(handle, name));
             }
+            
+            Images.Singleton.Coroutines.Add(ActiveJob);
 
             return ActiveJob;
         }

@@ -19,7 +19,7 @@ namespace Images.Commands
             HandleCommandObject obj = Util.HandleCommand(arguments, sender, out response, true, "ihint", "images.ihint");
             if (obj == null) return true;
 
-            Timing.RunCoroutine(ShowHint(obj));
+            Images.Singleton.Coroutines.Add(Timing.RunCoroutine(ShowHint(obj)));
 
             response = "Creating image and displaying hint.";
             return true;
@@ -29,13 +29,30 @@ namespace Images.Commands
         {
             List<string> frames = new List<string>();
             
-            yield return Timing.WaitUntilDone(Util.LocationToText(obj.image["location"], text =>
-                {
-                    frames.Add(text.Replace("\\n", "\n"));
-                }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale, false)
-            );
-
             var startTime = DateTime.UtcNow;
+
+            var handle = new CoroutineHandle();
+            try
+            {
+                handle = Util.LocationToText(obj.image["location"], text =>
+                    {
+                        var newText = text.Replace("\\n", "\n");
+
+                        frames.Add(newText);
+
+                        foreach (var player in Player.List)
+                        {
+                            player.ShowHint(newText, 2f);
+                        }
+                    }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale, false, .4f);
+                Images.Singleton.Coroutines.Add(handle);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
+            }
+            
+            yield return Timing.WaitUntilDone(handle);
 
             var cur = 0;
                 

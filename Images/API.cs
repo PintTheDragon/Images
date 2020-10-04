@@ -36,20 +36,20 @@ namespace Images
             return Image.FromFile(path);
         }
 
-        private static CoroutineHandle FileToText(string path, Action<string> handle, float scale = 0f, bool shapeCorrection = true)
+        private static CoroutineHandle FileToText(string path, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
         {
             var file = GetBitmapFromFile(path);
             if (file == null) return new CoroutineHandle();
 
-            return BitmapToText(file, handle, scale, shapeCorrection);
+            return BitmapToText(file, handle, scale, shapeCorrection, waitTime);
         }
 
-        private static CoroutineHandle URLToText(string url, Action<string> handle, float scale = 0f, bool shapeCorrection = true)
+        private static CoroutineHandle URLToText(string url, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
         {
             var file = GetBitmapFromURL(url);
             if (file == null) return new CoroutineHandle();
 
-            return BitmapToText(file, handle, scale, shapeCorrection);
+            return BitmapToText(file, handle, scale, shapeCorrection, waitTime);
         }
 
         /// <summary>
@@ -60,15 +60,16 @@ namespace Images
         /// <param name="isURL">Whether the location is a URL.</param>
         /// <param name="scale">The <see cref="float"/> that determines the scale. Leave at default to automatically calculate scale.</param>
         /// <param name="shapeCorrection">Whether the shape of the image should be automatically corrected.</param>
-        public static CoroutineHandle LocationToText(string loc, Action<string> handle, bool isURL = false, float scale = 0f, bool shapeCorrection = true)
+        /// <param name="waitTime">How long should be waited after every frame in an image.</param>
+        public static CoroutineHandle LocationToText(string loc, Action<string> handle, bool isURL = false, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
         {
             if (isURL)
             {
-                return URLToText(loc, handle, scale, shapeCorrection);
+                return URLToText(loc, handle, scale, shapeCorrection, waitTime);
             }
             else
             {
-                return FileToText(loc, handle, scale, shapeCorrection);
+                return FileToText(loc, handle, scale, shapeCorrection, waitTime);
             }
         }
 
@@ -79,9 +80,10 @@ namespace Images
         /// <param name="handle">An <see cref="Action<string>"/> that will be ran for each frame of the image.</param>
         /// <param name="scale">The <see cref="float"/> that determines the scale. Leave at default to automatically calculate scale.</param>
         /// <param name="shapeCorrection">Whether or not the shape of the image should be automatically corrected.</param>
-        public static CoroutineHandle BitmapToText(Image bitmap, Action<string> handle, float scale = 0f, bool shapeCorrection = true)
+        /// <param name="waitTime">How long should be waited after every frame in an image.</param>
+        public static CoroutineHandle BitmapToText(Image bitmap, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
         {
-            return Timing.RunCoroutine(_BitmapToText(bitmap, handle, scale, shapeCorrection));
+            return Timing.RunCoroutine(_BitmapToText(bitmap, handle, scale, shapeCorrection, waitTime));
         }
         
         private static IEnumerator<float> _BitmapToText(Image image, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
@@ -98,7 +100,7 @@ namespace Images
 
                 if (size == 0f)
                 {
-                    if(image.Size.Height * image.Size.Width > 1000) throw new Exception("The image was too large. Please use an image with less that 1,000 pixels (you shouldn't have an image with 40,000 pixels anyway).");
+                    if(image.Size.Height * image.Size.Width > 2000) throw new Exception("The image was too large. Please use an image with less that 1,000 pixels (you shouldn't have an image with 40,000 pixels anyway).");
                     size = Convert.ToInt32(scale == 0f ? Math.Floor((-.47*(((image.Size.Width+image.Size.Height)/2 > 60 ? 45 : (image.Width+image.Height)/2)))+28.72) : scale);
                 }
 
@@ -138,7 +140,7 @@ namespace Images
                 
                 text+="</size>";
 
-                if (text.Length > 32000) throw new Exception("Output text is too large. Please use a smaller image.");
+                if (text.Length > 32768) throw new Exception("Output text is too large. Please use a smaller image.");
 
                 handle(text);
 

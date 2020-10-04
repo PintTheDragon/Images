@@ -16,6 +16,8 @@ namespace Images
         internal static Images Singleton;
         internal string IntercomText = null;
         internal Dictionary<string, List<string>> ImageCache = new Dictionary<string, List<string>>();
+        internal CoroutineHandle IntercomHandle;
+        internal List<CoroutineHandle> Coroutines = new List<CoroutineHandle>();
 
         public override void OnEnabled()
         {
@@ -24,6 +26,7 @@ namespace Images
             Singleton = this;
 
             Exiled.Events.Handlers.Server.RoundStarted += OnRoundStart;
+            Exiled.Events.Handlers.Server.RestartingRound += OnRoundRestart;
             Exiled.Events.Handlers.Player.Joined += OnPlayerJoin;
             Exiled.Events.Handlers.Server.ReloadedConfigs += OnConfigReloaded;
         }
@@ -32,9 +35,13 @@ namespace Images
         {
             base.OnDisabled();
 
+            Timing.KillCoroutines(Coroutines);
+            Coroutines.Clear();
+
             Singleton = null;
             
             Exiled.Events.Handlers.Server.RoundStarted -= OnRoundStart;
+            Exiled.Events.Handlers.Server.RestartingRound -= OnRoundRestart;
             Exiled.Events.Handlers.Player.Joined -= OnPlayerJoin;
             Exiled.Events.Handlers.Server.ReloadedConfigs -= OnConfigReloaded;
             
@@ -48,7 +55,18 @@ namespace Images
 
         private void OnConfigReloaded()
         {
+            Timing.KillCoroutines(Coroutines);
+            Coroutines.Clear();
+            
             ImageCache.Clear();
+            
+            OnRoundStart();
+        }
+
+        private void OnRoundRestart()
+        {
+            Timing.KillCoroutines(Coroutines);
+            Coroutines.Clear();
         }
 
         private void OnRoundStart()
@@ -72,25 +90,45 @@ namespace Images
                     }
                 }
 
-                Timing.RunCoroutine(Util.TimeoutCoroutine(Timing.RunCoroutine(ShowIntercom(image, scale))));
+                if (IntercomHandle.IsRunning) Timing.KillCoroutines(IntercomHandle);
+                IntercomHandle = Timing.RunCoroutine(ShowIntercom(image, scale));
+                Coroutines.Add(IntercomHandle);
             }
         }
 
         private IEnumerator<float> ShowIntercom(Dictionary<string, string> image, int scale)
         {
-            yield return Timing.WaitForSeconds(0.1f);
+            List<string> frames = new List<string>();
 
+            CoroutineHandle handle = new CoroutineHandle();
             try
             {
-                 Util.LocationToText(image["location"], text =>
-                 { 
-                     IntercomText = text.Replace("\\n", "\n");
-                     ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText;
-                }, image["name"].Trim().ToLower(), image["isURL"] == "true", scale);
+                handle = Util.LocationToText(image["location"], text =>
+                    {
+                        IntercomText = text.Replace("\\n", "\n");
+                        ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText;
+                        frames.Add(IntercomText);
+                    }, image["name"].Trim().ToLower(), image["isURL"] == "true", scale);
+                
+                Coroutines.Add(handle);
             }
             catch (Exception e)
             {
                 Log.Error(e);
+            }
+
+            yield return Timing.WaitUntilDone(handle);
+
+            var cur = 0;
+            
+            while (true)
+            {
+                IntercomText = frames[cur % frames.Count];
+                ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText;
+
+                yield return Timing.WaitForSeconds(.1f);
+
+                cur++;
             }
         }
     }

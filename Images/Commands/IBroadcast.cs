@@ -18,7 +18,7 @@ namespace Images.Commands
             HandleCommandObject obj = Util.HandleCommand(arguments, sender, out response, true, "ibroadcast", "images.ibc");
             if (obj == null) return true;
 
-            Timing.RunCoroutine(Util.TimeoutCoroutine(Timing.RunCoroutine(ShowBroadcast(obj))));
+            Images.Singleton.Coroutines.Add(Timing.RunCoroutine(ShowBroadcast(obj)));
 
             response = "Creating image and displaying broadcast.";
             return true;
@@ -30,13 +30,14 @@ namespace Images.Commands
 
             try
             {
-                Util.LocationToText(obj.image["location"], text =>
+                var handle = Util.LocationToText(obj.image["location"], text =>
                 {
                     foreach (var player in Player.List)
                     {
                         player.Broadcast((ushort) obj.duration, text);
                     }
                 }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale);
+                Images.Singleton.Coroutines.Add(handle);
             }
             catch (Exception e)
             {
