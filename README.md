@@ -23,6 +23,7 @@ To add an image to Images, you need to first add it to the configuration. In you
   location: https://pint.cloud/img2txt/smallimg.png
   isURL: true
   scale: 26
+  fps: 10
 ```
 The first item (`name`) is the name you want the image to be set to. This will be the name that is used in your commands.
 
