@@ -7,6 +7,9 @@ To install this plugin, download the [latest release](https://github.com/PintThe
 ## Usage
 To use Images, you have to first configure your images. Then, you can use them in any of the below commands, replacing the image name with the name of your image (the name you set it to in the config, not the file name).
 
+## Limitations
+Currently, the maximium image size is 27x27 for hints and intercom, and around 7x7 for broadcasts.
+
 ## Commands
 Here are all of the commands that Images has:
 * `iintercom <image name>` - `images.iintercom` - `Puts an image on the intercom`
