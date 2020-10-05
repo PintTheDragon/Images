@@ -1,6 +1,9 @@
 # Images
 Images is a plugin and library that allows you to put images into SCPSL. You can put images into the intercom, hints, and broadcasts. If you want to put images into serverinfo, use [this converter](https://pint.cloud/img2txt).
 
+## Installation
+To install this plugin, download the [latest release](https://github.com/PintTheDragon/Images/releases/latest), then put Images.dll into your plugins folder and System.Drawing.dll into your dependencies folder (which is inside of your Plugins folder).
+
 ## Usage
 To use Images, you have to first configure your images. Then, you can use them in any of the below commands, replacing the image name with the name of your image (the name you set it to in the config, not the file name).
 
