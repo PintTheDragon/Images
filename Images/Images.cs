@@ -91,7 +91,7 @@ namespace Images
 
         private void OnIntercomTalk(IntercomSpeakingEventArgs ev)
         {
-            if (ev == null)
+            if (ev.Player == null)
             {
                 if (Config.DefaultIntercomImageSpeaking != "none")
                 {
