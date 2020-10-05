@@ -29,6 +29,8 @@ namespace Images
             Exiled.Events.Handlers.Server.RestartingRound += OnRoundRestart;
             Exiled.Events.Handlers.Player.Joined += OnPlayerJoin;
             Exiled.Events.Handlers.Server.ReloadedConfigs += OnConfigReloaded;
+            
+            ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
         }
 
         public override void OnDisabled()
@@ -46,6 +48,8 @@ namespace Images
             Exiled.Events.Handlers.Server.ReloadedConfigs -= OnConfigReloaded;
             
             ImageCache.Clear();
+            
+            ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
         }
 
         private void OnPlayerJoin(JoinedEventArgs ev)
@@ -61,17 +65,21 @@ namespace Images
             ImageCache.Clear();
             
             OnRoundStart();
+            
+            ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
         }
 
         private void OnRoundRestart()
         {
             Timing.KillCoroutines(Coroutines);
             Coroutines.Clear();
+            ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
         }
 
         private void OnRoundStart()
         {
             IntercomText = null;
+            ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
             
             var imageName = Config.DefaultIntercomImage.Trim().ToLower().Replace(" ", "");
             
