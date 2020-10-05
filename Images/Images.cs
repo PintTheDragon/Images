@@ -29,7 +29,8 @@ namespace Images
             Exiled.Events.Handlers.Server.RestartingRound += OnRoundRestart;
             Exiled.Events.Handlers.Player.Joined += OnPlayerJoin;
             Exiled.Events.Handlers.Server.ReloadedConfigs += OnConfigReloaded;
-            
+            Exiled.Events.Handlers.Player.IntercomSpeaking += OnIntercomTalk;
+
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
         }
 
@@ -49,6 +50,7 @@ namespace Images
             Exiled.Events.Handlers.Server.RestartingRound -= OnRoundRestart;
             Exiled.Events.Handlers.Player.Joined -= OnPlayerJoin;
             Exiled.Events.Handlers.Server.ReloadedConfigs -= OnConfigReloaded;
+            Exiled.Events.Handlers.Player.IntercomSpeaking -= OnIntercomTalk;
             
             ImageCache.Clear();
             
