@@ -89,14 +89,25 @@ namespace Images
                         return;
                     }
                 }
+                
+                var fps = 10;
+
+                if (image["fps"].Trim().ToLower() != "auto")
+                {
+                    if (!int.TryParse(image["fps"].Trim().ToLower(), out fps))
+                    {
+                        Log.Error("The fps value for the custom intercom image is incorrect. Use an integer.");
+                        return;
+                    }
+                }
 
                 if (IntercomHandle.IsRunning) Timing.KillCoroutines(IntercomHandle);
-                IntercomHandle = Timing.RunCoroutine(ShowIntercom(image, scale));
+                IntercomHandle = Timing.RunCoroutine(ShowIntercom(image, scale, fps));
                 Coroutines.Add(IntercomHandle);
             }
         }
 
-        private IEnumerator<float> ShowIntercom(Dictionary<string, string> image, int scale)
+        private IEnumerator<float> ShowIntercom(Dictionary<string, string> image, int scale, float fps)
         {
             List<string> frames = new List<string>();
 
@@ -108,7 +119,7 @@ namespace Images
                         IntercomText = text.Replace("\\n", "\n");
                         ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText;
                         frames.Add(IntercomText);
-                    }, image["name"].Trim().ToLower(), image["isURL"] == "true", scale);
+                    }, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, true, 1/fps);
                 
                 Coroutines.Add(handle);
             }
@@ -128,7 +139,7 @@ namespace Images
                     IntercomText = frames[cur % frames.Count];
                     ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText;
 
-                    yield return Timing.WaitForSeconds(.1f);
+                    yield return Timing.WaitForSeconds(1/fps);
 
                     cur++;
                 }
