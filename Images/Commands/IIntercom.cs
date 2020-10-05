@@ -15,6 +15,13 @@ namespace Images.Commands
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
+            if (arguments.Array != null && arguments.Array.Length > 1 && (arguments.Array[1].Trim().ToLower() == "reset" || arguments.Array[1].Trim().ToLower() == "none"))
+            {
+                ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
+                response = "Reset intercom";
+                return true;
+            }
+            
             HandleCommandObject obj =
                 Util.HandleCommand(arguments, sender, out response, false, "iintercom", "images.iintercom");
             if (obj == null) return true;
