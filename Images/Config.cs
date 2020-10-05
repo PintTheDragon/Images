@@ -17,14 +17,16 @@ namespace Images
                 {"name", "example1"},
                 {"location", "C:\\Temp\\example.png"},
                 {"isURL", "false"},
-                {"scale", "auto"}
+                {"scale", "auto"},
+                {"fps", "10"}
             },
             new Dictionary<string, string>()
             {
                 {"name", "example2"},
                 {"location", "https://pint.cloud/img2txt/smallimg.png"},
                 {"isURL", "true"},
-                {"scale", "26"}
+                {"scale", "26"},
+                {"fps", "10"}
             }
         });
 
