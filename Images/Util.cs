@@ -79,25 +79,27 @@ namespace Images
 
         internal static CoroutineHandle LocationToText(string loc, Action<string> handle, string name, bool isURL = false, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
         {
+            var cacheName = name + (shapeCorrection ? "y" : "n");
+            
             if (Images.Singleton.ImageCache.Count > Images.Singleton.Config.CacheSize)
             {
                 Images.Singleton.ImageCache.Remove(Images.Singleton.ImageCache.Keys.PickRandom());
             }
             
-            if (!Images.Singleton.ImageCache.ContainsKey(name))
+            if (!Images.Singleton.ImageCache.ContainsKey(cacheName))
             {
                 if (ActiveJob.IsRunning) Timing.KillCoroutines(ActiveJob);
                 ActiveJob = API.LocationToText(loc, data =>
                 {
-                    if(!Images.Singleton.ImageCache.ContainsKey(name)) Images.Singleton.ImageCache[name] = new List<string>();
-                    Images.Singleton.ImageCache[name].Add(data);
+                    if(!Images.Singleton.ImageCache.ContainsKey(cacheName)) Images.Singleton.ImageCache[cacheName] = new List<string>();
+                    Images.Singleton.ImageCache[cacheName].Add(data);
                     handle(data);
                 }, isURL, scale, shapeCorrection, waitTime);
             }
             else
             {
                 if (ActiveJob.IsRunning) Timing.KillCoroutines(ActiveJob);
-                ActiveJob = Timing.RunCoroutine(LoopCache(handle, name));
+                ActiveJob = Timing.RunCoroutine(LoopCache(handle, cacheName));
             }
             
             Images.Singleton.Coroutines.Add(ActiveJob);
