@@ -72,9 +72,21 @@ namespace Images
                 }
             }
 
+            var fps = 10;
+
+            if (image["fps"].Trim().ToLower() != "auto")
+            {
+                if (!int.TryParse(image["fps"].Trim().ToLower(), out fps))
+                {
+                    response = "The fps parameter for this image is invalid. Only use integers.";
+                    return null;
+                }
+            }
+
+
             response = "Error";
 
-            return new HandleCommandObject(imageList[0], duration, scale);
+            return new HandleCommandObject(imageList[0], duration, scale, fps);
         }
 
         internal static CoroutineHandle LocationToText(string loc, Action<string> handle, string name, bool isURL = false, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)

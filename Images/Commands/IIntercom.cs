@@ -39,7 +39,7 @@ namespace Images.Commands
                         Images.Singleton.IntercomText = text.Replace("\\n", "\n");
                         ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = Images.Singleton.IntercomText;
                         frames.Add(Images.Singleton.IntercomText);
-                    }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale);
+                    }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale, false, 1/obj.fps);
                 Images.Singleton.Coroutines.Add(handle);
             }
             catch (Exception e)
