@@ -53,6 +53,7 @@ namespace Images
             ImageCache.Clear();
             
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
+            IntercomText = null;
         }
 
         private void OnPlayerJoin(JoinedEventArgs ev)
@@ -73,6 +74,7 @@ namespace Images
             OnRoundStart();
             
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
+            IntercomText = null;
         }
 
         private void OnRoundRestart()
@@ -85,20 +87,42 @@ namespace Images
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
         }
 
+        private void OnIntercomTalk(IntercomSpeakingEventArgs ev)
+        {
+            if (ev == null)
+            {
+                if (Config.DefaultIntercomImageSpeaking != "none")
+                {
+                    Timing.KillCoroutines(IntercomHandle);
+                    IntercomHandle = new CoroutineHandle();
+                    
+                    ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
+                    IntercomText = null;
+                }
+            }
+            else
+            {
+                RunIntercomImage(Config.DefaultIntercomImageSpeaking);
+            }
+        }
+
         private void OnRoundStart()
         {
             IntercomText = null;
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
-            
-            var imageName = Config.DefaultIntercomImage.Trim().ToLower().Replace(" ", "");
-            
+
+            RunIntercomImage(Config.DefaultIntercomImage);
+        }
+
+        private void RunIntercomImage(string imageName)
+        {
             if (imageName != "none" && Config.Images.Count(img => img["name"].Trim().ToLower().Replace(" ", "") == imageName) > 0)
             {
                 var image = Config.Images.First(img => img["name"].Trim().ToLower().Replace(" ", "") == imageName);
                 
                 var scale = 0;
 
-                if (image["scale"].Trim().ToLower() != "auto")
+                if (image.ContainsKey("scale") && image["scale"].Trim().ToLower() != "auto")
                 {
                     if (!int.TryParse(image["scale"].Trim().ToLower(), out scale))
                     {
@@ -109,7 +133,7 @@ namespace Images
                 
                 var fps = 10;
 
-                if (image["fps"].Trim().ToLower() != "auto")
+                if (image.ContainsKey("fps") && image["fps"].Trim().ToLower() != "auto")
                 {
                     if (!int.TryParse(image["fps"].Trim().ToLower(), out fps))
                     {

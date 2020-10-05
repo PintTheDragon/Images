@@ -18,12 +18,12 @@ namespace Images.Commands
             if (arguments.Array != null && arguments.Array.Length > 1 && (arguments.Array[1].Trim().ToLower() == "reset" || arguments.Array[1].Trim().ToLower() == "none"))
             {
                 ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
+                Images.Singleton.IntercomText = null;
                 response = "Reset intercom";
                 return true;
             }
             
-            HandleCommandObject obj =
-                Util.HandleCommand(arguments, sender, out response, false, "iintercom", "images.iintercom");
+            HandleCommandObject obj = Util.HandleCommand(arguments, sender, out response, false, "iintercom", "images.iintercom");
             if (obj == null) return true;
 
             if (Images.Singleton.IntercomHandle.IsRunning) Timing.KillCoroutines(Images.Singleton.IntercomHandle);

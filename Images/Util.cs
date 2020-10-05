@@ -63,7 +63,7 @@ namespace Images
 
             var scale = 0;
 
-            if (image["scale"].Trim().ToLower() != "auto")
+            if (image.ContainsKey("scale") && image["scale"].Trim().ToLower() != "auto")
             {
                 if (!int.TryParse(image["scale"].Trim().ToLower(), out scale))
                 {
@@ -74,7 +74,7 @@ namespace Images
 
             var fps = 10;
 
-            if (image["fps"].Trim().ToLower() != "auto")
+            if (image.ContainsKey("fps") && image["fps"].Trim().ToLower() != "auto")
             {
                 if (!int.TryParse(image["fps"].Trim().ToLower(), out fps))
                 {
