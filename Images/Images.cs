@@ -37,6 +37,9 @@ namespace Images
         {
             base.OnDisabled();
 
+            Timing.KillCoroutines(IntercomHandle);
+            IntercomHandle = new CoroutineHandle();
+            
             Timing.KillCoroutines(Coroutines);
             Coroutines.Clear();
 
@@ -59,6 +62,9 @@ namespace Images
 
         private void OnConfigReloaded()
         {
+            Timing.KillCoroutines(IntercomHandle);
+            IntercomHandle = new CoroutineHandle();
+            
             Timing.KillCoroutines(Coroutines);
             Coroutines.Clear();
             
@@ -71,6 +77,9 @@ namespace Images
 
         private void OnRoundRestart()
         {
+            Timing.KillCoroutines(IntercomHandle);
+            IntercomHandle = new CoroutineHandle();
+            
             Timing.KillCoroutines(Coroutines);
             Coroutines.Clear();
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
