@@ -11,7 +11,6 @@ namespace Images
 {
     internal static class Util
     {
-        static CoroutineHandle ActiveJob;
         internal static HandleCommandObject HandleCommand(ArraySegment<string> arguments, ICommandSender sender, out string response, bool doDuration, string name, string perm)
         {
             var permission = false;
@@ -95,36 +94,37 @@ namespace Images
             
             if (Images.Singleton.ImageCache.Count > Images.Singleton.Config.CacheSize)
             {
-                Images.Singleton.ImageCache.Remove(Images.Singleton.ImageCache.Keys.PickRandom());
+                Images.Singleton.ImageCache.Remove(Images.Singleton.ImageCache.Keys.First());
             }
             
+            CoroutineHandle coroutine;
+
             if (!Images.Singleton.ImageCache.ContainsKey(cacheName))
             {
-                if (ActiveJob.IsRunning) Timing.KillCoroutines(ActiveJob);
-                ActiveJob = API.LocationToText(loc, data =>
+                Images.Singleton.ImageCache[cacheName] = new List<string>();
+                
+                coroutine = API.LocationToText(loc, data =>
                 {
-                    if(!Images.Singleton.ImageCache.ContainsKey(cacheName)) Images.Singleton.ImageCache[cacheName] = new List<string>();
                     Images.Singleton.ImageCache[cacheName].Add(data);
                     handle(data);
                 }, isURL, scale, shapeCorrection, waitTime);
             }
             else
             {
-                if (ActiveJob.IsRunning) Timing.KillCoroutines(ActiveJob);
-                ActiveJob = Timing.RunCoroutine(LoopCache(handle, cacheName));
+                coroutine = Timing.RunCoroutine(LoopCache(handle, cacheName, waitTime));
             }
             
-            Images.Singleton.Coroutines.Add(ActiveJob);
+            Images.Singleton.Coroutines.Add(coroutine);
 
-            return ActiveJob;
+            return coroutine;
         }
 
-        private static IEnumerator<float> LoopCache(Action<string> handle, string name)
+        private static IEnumerator<float> LoopCache(Action<string> handle, string name, float waitTime = .1f)
         {
             foreach (var s in Images.Singleton.ImageCache[name])
             {
                 handle(s);
-                yield return Timing.WaitForSeconds(.1f);
+                yield return Timing.WaitForSeconds(waitTime);
             }
         }
         
