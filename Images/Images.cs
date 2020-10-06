@@ -80,8 +80,8 @@ namespace Images
             
             foreach (var command in commands)
             {
-                CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(command);
-                GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(command);
+                CommandProcessor.RemoteAdminCommandHandler.UnregisterCommand(command);
+                GameCore.Console.singleton.ConsoleCommandHandler.UnregisterCommand(command);
             }
 
             commands.Clear();
