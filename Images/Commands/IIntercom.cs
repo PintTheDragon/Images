@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CommandSystem;
 using Exiled.API.Features;
+using Exiled.Permissions.Extensions;
 using MEC;
 
 namespace Images.Commands
@@ -16,7 +17,7 @@ namespace Images.Commands
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (arguments.Array != null && arguments.Array.Length > 1 && (arguments.Array[1].Trim().ToLower() == "reset" || arguments.Array[1].Trim().ToLower() == "none"))
+            if (sender.CheckPermission("images.iintercom") && arguments.Array != null && arguments.Array.Length > 1 && (arguments.Array[1].Trim().ToLower() == "reset" || arguments.Array[1].Trim().ToLower() == "none"))
             {
                 ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
                 Images.Singleton.IntercomText = null;
