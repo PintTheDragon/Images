@@ -38,6 +38,12 @@ namespace Images
         
         [Description("This will override the default intercom with a specific image, but only when someone is speaking. If you want this, put the image name below, otherwise, set it to \"none\".")]
         public string DefaultIntercomImageSpeaking { get; set; } = "none";
+        
+        [Description("This will override the default intercom with a specific image, but only when the intercom is on cooldown. If you want this, put the image name below, otherwise, set it to \"none\".")]
+        public string DefaultIntercomImageCooldown { get; set; } = "none";
+        
+        [Description("This will override the default intercom with a specific image, but only when the intercom is ready. If you want this, put the image name below, otherwise, set it to \"none\".")]
+        public string DefaultIntercomImageReady { get; set; } = "none";
 
         [Description("How many images should be cached. Caching helps reduce load on the server but will increase RAM usage. If too much RAM is being used, lower this, and if sending images takes too much time, increase this. Set it to 0 to disable caching.")]
         public int CacheSize { get; set; } = 20;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
+using HarmonyLib;
 using MEC;
 
 namespace Images
@@ -19,19 +20,28 @@ namespace Images
         internal CoroutineHandle IntercomHandle;
         internal List<CoroutineHandle> Coroutines = new List<CoroutineHandle>();
 
+        internal bool IReady = true;
+        internal bool ITrans = false;
+        internal bool ICool = false;
+
+        private Harmony harmony;
+
         public override void OnEnabled()
         {
             base.OnEnabled();
 
             Singleton = this;
+            
+            harmony = new Harmony("PintImages");
+            harmony.PatchAll();
 
             Exiled.Events.Handlers.Server.RoundStarted += OnRoundStart;
             Exiled.Events.Handlers.Server.RestartingRound += OnRoundRestart;
             Exiled.Events.Handlers.Player.Joined += OnPlayerJoin;
             Exiled.Events.Handlers.Server.ReloadedConfigs += OnConfigReloaded;
-            Exiled.Events.Handlers.Player.IntercomSpeaking += OnIntercomTalk;
 
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
+            IntercomText = null;
         }
 
         public override void OnDisabled()
@@ -46,12 +56,13 @@ namespace Images
 
             Singleton = null;
             
+            harmony.UnpatchAll();
+            
             Exiled.Events.Handlers.Server.RoundStarted -= OnRoundStart;
             Exiled.Events.Handlers.Server.RestartingRound -= OnRoundRestart;
             Exiled.Events.Handlers.Player.Joined -= OnPlayerJoin;
             Exiled.Events.Handlers.Server.ReloadedConfigs -= OnConfigReloaded;
-            Exiled.Events.Handlers.Player.IntercomSpeaking -= OnIntercomTalk;
-            
+
             ImageCache.Clear();
             
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
@@ -89,34 +100,12 @@ namespace Images
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
         }
 
-        private void OnIntercomTalk(IntercomSpeakingEventArgs ev)
-        {
-            if (ev.Player == null)
-            {
-                if (Config.DefaultIntercomImageSpeaking != "none")
-                {
-                    Timing.KillCoroutines(IntercomHandle);
-                    IntercomHandle = new CoroutineHandle();
-                    
-                    ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
-                    IntercomText = null;
-                }
-            }
-            else
-            {
-                RunIntercomImage(Config.DefaultIntercomImageSpeaking);
-            }
-        }
-
         private void OnRoundStart()
         {
-            IntercomText = null;
-            ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
-
             RunIntercomImage(Config.DefaultIntercomImage);
         }
 
-        private void RunIntercomImage(string imageName)
+        internal void RunIntercomImage(string imageName)
         {
             if (imageName != "none" && Config.Images.Count(img => img["name"].Trim().ToLower().Replace(" ", "") == imageName) > 0)
             {
@@ -144,7 +133,11 @@ namespace Images
                     }
                 }
 
-                if (IntercomHandle.IsRunning) Timing.KillCoroutines(IntercomHandle);
+                Timing.KillCoroutines(IntercomHandle);
+                
+                IntercomText = null;
+                ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
+                
                 IntercomHandle = Timing.RunCoroutine(ShowIntercom(image, scale, fps));
                 Coroutines.Add(IntercomHandle);
             }
