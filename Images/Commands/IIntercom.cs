@@ -38,7 +38,7 @@ namespace Images.Commands
 
         private IEnumerator<float> ShowIntercom(HandleCommandObject obj)
         {
-            List<string> frames = new List<string>();
+            var frames = new List<string>();
             
             var handle = new CoroutineHandle();
             try
@@ -60,17 +60,15 @@ namespace Images.Commands
 
             var cur = 0;
 
-            if (frames.Count > 1)
+            if (frames.Count <= 1) yield break;
+            while (true)
             {
-                while (true)
-                {
-                    Images.Singleton.IntercomText = frames[cur % frames.Count];
-                    ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = Images.Singleton.IntercomText;
+                Images.Singleton.IntercomText = frames[cur % frames.Count];
+                ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = Images.Singleton.IntercomText;
 
-                    yield return Timing.WaitForSeconds(1/obj.fps);
+                yield return Timing.WaitForSeconds(1/obj.fps);
 
-                    cur++;
-                }
+                cur++;
             }
         }
     }

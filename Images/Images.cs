@@ -107,40 +107,33 @@ namespace Images
 
         internal void RunIntercomImage(string imageName)
         {
-            if (imageName != "none" && Config.Images.Count(img => img["name"].Trim().ToLower().Replace(" ", "") == imageName) > 0)
+            if (imageName == "none" || Config.Images.Count(img => img["name"].Trim().ToLower().Replace(" ", "") == imageName) <= 0) return;
+            
+            var image = Config.Images.First(img => img["name"].Trim().ToLower().Replace(" ", "") == imageName);
+                
+            var scale = 0;
+
+            if (image.ContainsKey("scale") && image["scale"].Trim().ToLower() != "auto" && !int.TryParse(image["scale"].Trim().ToLower(), out scale))
             {
-                var image = Config.Images.First(img => img["name"].Trim().ToLower().Replace(" ", "") == imageName);
-                
-                var scale = 0;
-
-                if (image.ContainsKey("scale") && image["scale"].Trim().ToLower() != "auto")
-                {
-                    if (!int.TryParse(image["scale"].Trim().ToLower(), out scale))
-                    {
-                        Log.Error("The scale value for the custom intercom image is incorrect. Use an integer or \"auto\".");
-                        return;
-                    }
-                }
-                
-                var fps = 10;
-
-                if (image.ContainsKey("fps") && image["fps"].Trim().ToLower() != "auto")
-                {
-                    if (!int.TryParse(image["fps"].Trim().ToLower(), out fps))
-                    {
-                        Log.Error("The fps value for the custom intercom image is incorrect. Use an integer.");
-                        return;
-                    }
-                }
-
-                Timing.KillCoroutines(IntercomHandle);
-                
-                IntercomText = null;
-                ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
-                
-                IntercomHandle = Timing.RunCoroutine(ShowIntercom(image, scale, fps));
-                Coroutines.Add(IntercomHandle);
+                Log.Error("The scale value for the custom intercom image is incorrect. Use an integer or \"auto\".");
+                return;
             }
+                
+            var fps = 10;
+
+            if (image.ContainsKey("fps") && image["fps"].Trim().ToLower() != "auto" && !int.TryParse(image["fps"].Trim().ToLower(), out fps))
+            {
+                Log.Error("The fps value for the custom intercom image is incorrect. Use an integer.");
+                return;
+            }
+
+            Timing.KillCoroutines(IntercomHandle);
+                
+            IntercomText = null;
+            ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
+                
+            IntercomHandle = Timing.RunCoroutine(ShowIntercom(image, scale, fps));
+            Coroutines.Add(IntercomHandle);
         }
 
         private IEnumerator<float> ShowIntercom(Dictionary<string, string> image, int scale, float fps)

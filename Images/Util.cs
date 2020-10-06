@@ -92,11 +92,8 @@ namespace Images
         {
             var cacheName = name + (shapeCorrection ? "y" : "n");
             
-            if (Images.Singleton.ImageCache.Count > Images.Singleton.Config.CacheSize)
-            {
-                Images.Singleton.ImageCache.Remove(Images.Singleton.ImageCache.Keys.First());
-            }
-            
+            if (Images.Singleton.ImageCache.Count > Images.Singleton.Config.CacheSize) Images.Singleton.ImageCache.Remove(Images.Singleton.ImageCache.Keys.First());
+
             CoroutineHandle coroutine;
 
             if (!Images.Singleton.ImageCache.ContainsKey(cacheName))

@@ -57,19 +57,17 @@ namespace Images.Commands
 
             var cur = 0;
 
-            if (frames.Count > 1)
+            if (frames.Count <= 1) yield break;
+            while (DateTime.UtcNow - startTime < TimeSpan.FromSeconds(obj.duration))
             {
-                while (DateTime.UtcNow - startTime < TimeSpan.FromSeconds(obj.duration))
+                foreach (var player in Player.List)
                 {
-                    foreach (var player in Player.List)
-                    {
-                        player.ShowHint(frames[cur % frames.Count], 2f);
-                    }
-
-                    yield return Timing.WaitForSeconds(.4f);
-
-                    cur++;
+                    player.ShowHint(frames[cur % frames.Count], 2f);
                 }
+
+                yield return Timing.WaitForSeconds(.4f);
+
+                cur++;
             }
         }
     }
