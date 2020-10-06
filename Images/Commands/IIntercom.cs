@@ -7,10 +7,11 @@ using MEC;
 namespace Images.Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
+    [CommandHandler(typeof(GameConsoleCommandHandler))]
     public class IIntercom : ICommand
     {
         public string Command => "iintercom";
-        public string[] Aliases => null;
+        public string[] Aliases => new string[] {"imageintercom"};
         public string Description => "Set the intercom text to an image.";
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
