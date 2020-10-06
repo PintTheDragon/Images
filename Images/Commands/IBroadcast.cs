@@ -6,8 +6,6 @@ using MEC;
 
 namespace Images.Commands
 {
-    [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    [CommandHandler(typeof(GameConsoleCommandHandler))]
     public class IBroadcast : ICommand
     {
         public string Command => "ibroadcast";

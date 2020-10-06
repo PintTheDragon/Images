@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CommandSystem;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using HarmonyLib;
+using Images.Commands;
 using MEC;
+using RemoteAdmin;
 
 namespace Images
 {
@@ -25,6 +28,7 @@ namespace Images
         internal bool ICool = false;
 
         private Harmony harmony;
+        private List<ICommand> commands = new List<ICommand>();
 
         public override void OnEnabled()
         {
@@ -39,6 +43,17 @@ namespace Images
             Exiled.Events.Handlers.Server.RestartingRound += OnRoundRestart;
             Exiled.Events.Handlers.Player.Joined += OnPlayerJoin;
             Exiled.Events.Handlers.Server.ReloadedConfigs += OnConfigReloaded;
+            
+            commands.Clear();
+            commands.Add(new IBroadcast());
+            commands.Add(new IHint());
+            commands.Add(new IIntercom());
+            
+            foreach (var command in commands)
+            {
+                CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(command);
+                GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(command);
+            }
 
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
             IntercomText = null;
@@ -62,7 +77,14 @@ namespace Images
             Exiled.Events.Handlers.Server.RestartingRound -= OnRoundRestart;
             Exiled.Events.Handlers.Player.Joined -= OnPlayerJoin;
             Exiled.Events.Handlers.Server.ReloadedConfigs -= OnConfigReloaded;
+            
+            foreach (var command in commands)
+            {
+                CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(command);
+                GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(command);
+            }
 
+            commands.Clear();
             ImageCache.Clear();
             
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";

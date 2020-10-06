@@ -7,8 +7,6 @@ using UnityEngine;
 
 namespace Images.Commands
 {
-    [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    [CommandHandler(typeof(GameConsoleCommandHandler))]
     public class IHint : ICommand
     {
         public string Command => "ihint";

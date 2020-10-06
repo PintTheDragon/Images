@@ -7,8 +7,6 @@ using MEC;
 
 namespace Images.Commands
 {
-    [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    [CommandHandler(typeof(GameConsoleCommandHandler))]
     public class IIntercom : ICommand
     {
         public string Command => "iintercom";
