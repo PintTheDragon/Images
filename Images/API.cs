@@ -97,6 +97,8 @@ namespace Images
             for (var index = 0; index < image.GetFrameCount(dim); index++)
             {
                 image.SelectActiveFrame(dim, index);
+                
+                if(image.Size.Height * image.Size.Width > 10000) throw new Exception("The image was too large. Please use an image with less that 10,000 pixels. Your image doesn't need to be more than 100x100.");
 
                 if (size == 0f)
                 {
@@ -106,7 +108,7 @@ namespace Images
                 Bitmap bitmap;
                 if(shapeCorrection) bitmap = new Bitmap(image, new Size(Convert.ToInt32(image.Size.Width*(1+.03*size)), image.Size.Height));
                 else bitmap = new Bitmap(image);
-                
+
                 var text = "<size=" + size + "%>";
 
                 var pastPixel = new Color();
