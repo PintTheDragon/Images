@@ -36,20 +36,20 @@ namespace Images
             return Image.FromFile(path);
         }
 
-        private static CoroutineHandle FileToText(string path, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f, float threshold = 0f)
+        private static CoroutineHandle FileToText(string path, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
         {
             var file = GetBitmapFromFile(path);
             if (file == null) return new CoroutineHandle();
 
-            return BitmapToText(file, handle, scale, shapeCorrection, waitTime, threshold);
+            return BitmapToText(file, handle, scale, shapeCorrection, waitTime);
         }
 
-        private static CoroutineHandle URLToText(string url, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f, float threshold = 0f)
+        private static CoroutineHandle URLToText(string url, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
         {
             var file = GetBitmapFromURL(url);
             if (file == null) return new CoroutineHandle();
 
-            return BitmapToText(file, handle, scale, shapeCorrection, waitTime, threshold);
+            return BitmapToText(file, handle, scale, shapeCorrection, waitTime);
         }
 
         /// <summary>
@@ -61,16 +61,15 @@ namespace Images
         /// <param name="scale">The <see cref="float"/> that determines the scale. Leave at default to automatically calculate scale.</param>
         /// <param name="shapeCorrection">Whether the shape of the image should be automatically corrected.</param>
         /// <param name="waitTime">How long should be waited after every frame in an image.</param>
-        /// <param name="threshold">Threshold for how similar images need to be combined. Set to 0 to disable compression.</param>
-        public static CoroutineHandle LocationToText(string loc, Action<string> handle, bool isURL = false, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f, float threshold = 0f)
+        public static CoroutineHandle LocationToText(string loc, Action<string> handle, bool isURL = false, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
         {
             if (isURL)
             {
-                return URLToText(loc, handle, scale, shapeCorrection, waitTime, threshold);
+                return URLToText(loc, handle, scale, shapeCorrection, waitTime);
             }
             else
             {
-                return FileToText(loc, handle, scale, shapeCorrection, waitTime, threshold);
+                return FileToText(loc, handle, scale, shapeCorrection, waitTime);
             }
         }
 
@@ -82,18 +81,15 @@ namespace Images
         /// <param name="scale">The <see cref="float"/> that determines the scale. Leave at default to automatically calculate scale.</param>
         /// <param name="shapeCorrection">Whether or not the shape of the image should be automatically corrected.</param>
         /// <param name="waitTime">How long should be waited after every frame in an image.</param>
-        /// <param name="threshold">Threshold for how similar images need to be combined. Set to 0 to disable compression.</param>
-        public static CoroutineHandle BitmapToText(Image bitmap, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f, float threshold = 0f)
+        public static CoroutineHandle BitmapToText(Image bitmap, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
         {
-            return Timing.RunCoroutine(_BitmapToText(bitmap, handle, scale, shapeCorrection, waitTime, threshold));
+            return Timing.RunCoroutine(_BitmapToText(bitmap, handle, scale, shapeCorrection, waitTime));
         }
         
-        private static IEnumerator<float> _BitmapToText(Image image, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f, float threshold = 0f)
+        private static IEnumerator<float> _BitmapToText(Image image, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
         {
             if (image == null) yield break;
 
-            if(threshold != 0f) threshold /= 10f;
-            
             var size = 0f;
 
             var dim = new FrameDimension(image.FrameDimensionsList[0]);
@@ -114,51 +110,58 @@ namespace Images
                 
                 var text = "<size=" + size + "%>";
 
-                Color pastPixel = new Color();
+                var pastPixel = new Color();
+                
+                var threshold = 0f;
 
-                //I need to figure out how to use bitmap data, but GetPixel is fine for now
-                for (var i = 0; i < bitmap.Height; i++)
+                while ((System.Text.Encoding.Unicode.GetByteCount(text) > 32768  || text == "<size=" + size + "%>") && threshold < 5f)
                 {
-                    for (var j = 0; j < bitmap.Width; j++)
+                    text = "<size=" + size + "%>";
+                    
+                    //I need to figure out how to use bitmap data, but GetPixel is fine for now
+                    for (var i = 0; i < bitmap.Height; i++)
                     {
-                        Color pixel = bitmap.GetPixel(j, i);
-
-                        var colorString = "#" + pixel.R.ToString("X2") + pixel.G.ToString("X2") + pixel.B.ToString("X2") + pixel.A.ToString("X2");
-                        
-                        if (!pixel.Equals(pastPixel))
+                        for (var j = 0; j < bitmap.Width; j++)
                         {
-                            if(threshold == 0f || (i == 0 && j == 0)) text += ((i == 0 && j == 0) ? "" : "</color>") + "<color=" + colorString + ">█";
-                            else
-                            {
-                                var d = Math.Abs(pixel.GetHue() - pastPixel.GetHue());
-                                var diff = d > 180 ? 360 - d : d;
+                            var pixel = bitmap.GetPixel(j, i);
 
-                                if (diff > threshold) text += ((i == 0 && j == 0) ? "" : "</color>") + "<color=" + colorString + ">█";
+                            var colorString = "#" + pixel.R.ToString("X2") + pixel.G.ToString("X2") + pixel.B.ToString("X2") + pixel.A.ToString("X2");
+
+                            if (!pixel.Equals(pastPixel))
+                            {
+                                if (threshold == 0f || (i == 0 && j == 0)) text += ((i == 0 && j == 0) ? "" : "</color>") + "<color=" + colorString + ">█";
                                 else
                                 {
-                                    bitmap.SetPixel(j, i, pastPixel);
-                                    pixel = pastPixel;
-                                    
-                                    text += "█";
+                                    var d = Math.Abs(pixel.GetHue() - pastPixel.GetHue());
+                                    var diff = d > 180 ? 360 - d : d;
+
+                                    if (diff > threshold) text += ((i == 0 && j == 0) ? "" : "</color>") + "<color=" + colorString + ">█";
+                                    else
+                                    {
+                                        pixel = pastPixel;
+                                        text += "█";
+                                    }
                                 }
                             }
-                        }
-                        else
-                        {
-                            text += "█";
-                        }
+                            else
+                            {
+                                text += "█";
+                            }
 
-                        pastPixel = pixel;
+                            pastPixel = pixel;
 
-                        if (j == bitmap.Width - 1) text += "\\n";
+                            if (j == bitmap.Width - 1) text += "\\n";
+                        }
                     }
+
+                    if (!text.EndsWith("</color>\\n") && !text.EndsWith("</color>")) text += "</color>";
+
+                    text += "</size>";
+
+                    threshold += .5f;
                 }
 
-                if (!text.EndsWith("</color>\\n") && !text.EndsWith("</color>")) text += "</color>";
-                
-                text+="</size>";
-
-                if (text.Length > 32768) throw new Exception("Output text is too large. Please use a smaller image.");
+                if (System.Text.Encoding.Unicode.GetByteCount(text) > 32768) throw new Exception("Output text is too large. Please use a smaller image.");
 
                 handle(text);
 

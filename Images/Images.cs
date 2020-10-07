@@ -148,25 +148,17 @@ namespace Images
                 Log.Error("The fps value for the custom intercom image is incorrect. Use an integer.");
                 return;
             }
-            
-            var threshold = 0;
-
-            if (image.ContainsKey("compression") && image["compression"].Trim().ToLower() != "auto" && !int.TryParse(image["compression"].Trim().ToLower(), out threshold))
-            {
-                Log.Error("The compression parameter for this image is invalid. Only use integers.");
-                return;
-            }
 
             Timing.KillCoroutines(IntercomHandle);
                 
             IntercomText = null;
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
                 
-            IntercomHandle = Timing.RunCoroutine(ShowIntercom(image, scale, fps, threshold));
+            IntercomHandle = Timing.RunCoroutine(ShowIntercom(image, scale, fps));
             Coroutines.Add(IntercomHandle);
         }
 
-        private IEnumerator<float> ShowIntercom(Dictionary<string, string> image, int scale, float fps, float threshold)
+        private IEnumerator<float> ShowIntercom(Dictionary<string, string> image, int scale, float fps)
         {
             List<string> frames = new List<string>();
 
@@ -178,7 +170,7 @@ namespace Images
                         IntercomText = text.Replace("\\n", "\n");
                         ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText;
                         frames.Add(IntercomText);
-                    }, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, true, 1/fps, threshold);
+                    }, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, true, 1/fps);
                 
                 Coroutines.Add(handle);
             }

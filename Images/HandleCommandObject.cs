@@ -8,15 +8,13 @@ namespace Images
         public int duration;
         public float scale;
         public float fps;
-        public float threshold;
 
-        public HandleCommandObject(Dictionary<string, string> image, int duration, float scale, float fps, float threshold)
+        public HandleCommandObject(Dictionary<string, string> image, int duration, float scale, float fps)
         {
             this.image = image;
             this.duration = duration;
             this.scale = scale;
             this.fps = fps;
-            this.threshold = threshold;
         }
     }
 }

@@ -43,7 +43,7 @@ namespace Images.Commands
                         {
                             player.ShowHint(newText, 2f);
                         }
-                    }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale, false, .4f, obj.threshold);
+                    }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale, false, .4f);
                 Images.Singleton.Coroutines.Add(handle);
             }
             catch (Exception e)
