@@ -35,7 +35,7 @@ namespace Images.Commands
                     {
                         player.Broadcast((ushort) obj.duration, text);
                     }
-                }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale);
+                }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale, true, obj.fps, obj.threshold);
                 Images.Singleton.Coroutines.Add(handle);
             }
             catch (Exception e)

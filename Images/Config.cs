@@ -18,7 +18,8 @@ namespace Images
                 {"location", "C:\\Temp\\example.png"},
                 {"isURL", "false"},
                 {"scale", "auto"},
-                {"fps", "auto"}
+                {"fps", "auto"},
+                {"compression", "auto"}
             },
             new Dictionary<string, string>()
             {
@@ -26,7 +27,8 @@ namespace Images
                 {"location", "https://pint.cloud/img2txt/smallimg.png"},
                 {"isURL", "true"},
                 {"scale", "26"},
-                {"fps", "auto"}
+                {"fps", "auto"},
+                {"compression", "auto"}
             }
         });
 

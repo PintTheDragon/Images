@@ -62,33 +62,35 @@ namespace Images
 
             var scale = 0;
 
-            if (image.ContainsKey("scale") && image["scale"].Trim().ToLower() != "auto")
+            if (image.ContainsKey("scale") && image["scale"].Trim().ToLower() != "auto" && !int.TryParse(image["scale"].Trim().ToLower(), out scale))
             {
-                if (!int.TryParse(image["scale"].Trim().ToLower(), out scale))
-                {
-                    response = "The scale parameter for this image is invalid. Only use integers or \"auto\".";
-                    return null;
-                }
+                response = "The scale parameter for this image is invalid. Only use integers or \"auto\".";
+                return null;
             }
 
             var fps = 10;
 
-            if (image.ContainsKey("fps") && image["fps"].Trim().ToLower() != "auto")
+            if (image.ContainsKey("fps") && image["fps"].Trim().ToLower() != "auto" && !int.TryParse(image["fps"].Trim().ToLower(), out fps))
             {
-                if (!int.TryParse(image["fps"].Trim().ToLower(), out fps))
-                {
-                    response = "The fps parameter for this image is invalid. Only use integers.";
-                    return null;
-                }
+                response = "The fps parameter for this image is invalid. Only use integers.";
+                return null;
+            }
+            
+            var threshold = 0;
+
+            if (image.ContainsKey("compression") && image["compression"].Trim().ToLower() != "auto" && !int.TryParse(image["compression"].Trim().ToLower(), out threshold))
+            {
+                response = "The compression parameter for this image is invalid. Only use integers.";
+                return null;
             }
 
 
             response = "Error";
 
-            return new HandleCommandObject(imageList[0], duration, scale, fps);
+            return new HandleCommandObject(imageList[0], duration, scale, fps, threshold);
         }
 
-        internal static CoroutineHandle LocationToText(string loc, Action<string> handle, string name, bool isURL = false, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
+        internal static CoroutineHandle LocationToText(string loc, Action<string> handle, string name, bool isURL = false, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f, float threshold = 0f)
         {
             var cacheName = name + (shapeCorrection ? "y" : "n");
             
@@ -104,7 +106,7 @@ namespace Images
                 {
                     Images.Singleton.ImageCache[cacheName].Add(data);
                     handle(data);
-                }, isURL, scale, shapeCorrection, waitTime);
+                }, isURL, scale, shapeCorrection, waitTime, threshold);
             }
             else
             {

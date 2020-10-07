@@ -36,20 +36,20 @@ namespace Images
             return Image.FromFile(path);
         }
 
-        private static CoroutineHandle FileToText(string path, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
+        private static CoroutineHandle FileToText(string path, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f, float threshold = 0f)
         {
             var file = GetBitmapFromFile(path);
             if (file == null) return new CoroutineHandle();
 
-            return BitmapToText(file, handle, scale, shapeCorrection, waitTime);
+            return BitmapToText(file, handle, scale, shapeCorrection, waitTime, threshold);
         }
 
-        private static CoroutineHandle URLToText(string url, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
+        private static CoroutineHandle URLToText(string url, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f, float threshold = 0f)
         {
             var file = GetBitmapFromURL(url);
             if (file == null) return new CoroutineHandle();
 
-            return BitmapToText(file, handle, scale, shapeCorrection, waitTime);
+            return BitmapToText(file, handle, scale, shapeCorrection, waitTime, threshold);
         }
 
         /// <summary>
@@ -61,15 +61,16 @@ namespace Images
         /// <param name="scale">The <see cref="float"/> that determines the scale. Leave at default to automatically calculate scale.</param>
         /// <param name="shapeCorrection">Whether the shape of the image should be automatically corrected.</param>
         /// <param name="waitTime">How long should be waited after every frame in an image.</param>
-        public static CoroutineHandle LocationToText(string loc, Action<string> handle, bool isURL = false, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
+        /// <param name="threshold">Threshold for how similar images need to be combined. Set to 0 to disable compression.</param>
+        public static CoroutineHandle LocationToText(string loc, Action<string> handle, bool isURL = false, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f, float threshold = 0f)
         {
             if (isURL)
             {
-                return URLToText(loc, handle, scale, shapeCorrection, waitTime);
+                return URLToText(loc, handle, scale, shapeCorrection, waitTime, threshold);
             }
             else
             {
-                return FileToText(loc, handle, scale, shapeCorrection, waitTime);
+                return FileToText(loc, handle, scale, shapeCorrection, waitTime, threshold);
             }
         }
 
@@ -81,14 +82,17 @@ namespace Images
         /// <param name="scale">The <see cref="float"/> that determines the scale. Leave at default to automatically calculate scale.</param>
         /// <param name="shapeCorrection">Whether or not the shape of the image should be automatically corrected.</param>
         /// <param name="waitTime">How long should be waited after every frame in an image.</param>
-        public static CoroutineHandle BitmapToText(Image bitmap, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
+        /// <param name="threshold">Threshold for how similar images need to be combined. Set to 0 to disable compression.</param>
+        public static CoroutineHandle BitmapToText(Image bitmap, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f, float threshold = 0f)
         {
-            return Timing.RunCoroutine(_BitmapToText(bitmap, handle, scale, shapeCorrection, waitTime));
+            return Timing.RunCoroutine(_BitmapToText(bitmap, handle, scale, shapeCorrection, waitTime, threshold));
         }
         
-        private static IEnumerator<float> _BitmapToText(Image image, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
+        private static IEnumerator<float> _BitmapToText(Image image, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f, float threshold = 0f)
         {
             if (image == null) yield break;
+
+            if(threshold != 0f) threshold /= 10f;
             
             var size = 0f;
 
@@ -100,7 +104,7 @@ namespace Images
 
                 if (size == 0f)
                 {
-                    if(image.Size.Height * image.Size.Width > 2000) throw new Exception("The image was too large. Please use an image with less that 1,000 pixels (you shouldn't have an image with 40,000 pixels anyway).");
+                    if(image.Size.Height * image.Size.Width > 3000) throw new Exception("The image was too large. Please use an image with less that 3,000 pixels.");
                     size = Convert.ToInt32(scale == 0f ? Math.Floor((-.47*(((image.Size.Width+image.Size.Height)/2 > 60 ? 45 : (image.Width+image.Height)/2)))+28.72) : scale);
                 }
 
@@ -123,7 +127,21 @@ namespace Images
                         
                         if (!pixel.Equals(pastPixel))
                         {
-                            text += ((i == 0 && j == 0) ? "" : "</color>") + "<color=" + colorString + ">█";
+                            if(threshold == 0f || (i == 0 && j == 0)) text += ((i == 0 && j == 0) ? "" : "</color>") + "<color=" + colorString + ">█";
+                            else
+                            {
+                                var d = Math.Abs(pixel.GetHue() - pastPixel.GetHue());
+                                var diff = d > 180 ? 360 - d : d;
+
+                                if (diff > threshold) text += ((i == 0 && j == 0) ? "" : "</color>") + "<color=" + colorString + ">█";
+                                else
+                                {
+                                    bitmap.SetPixel(j, i, pastPixel);
+                                    pixel = pastPixel;
+                                    
+                                    text += "█";
+                                }
+                            }
                         }
                         else
                         {
