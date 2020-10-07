@@ -8,7 +8,7 @@ To install this plugin, download the [latest release](https://github.com/PintThe
 To use Images, you have to first configure your images. Then, you can use them in any of the below commands, replacing the image name with the name of your image (the name you set it to in the config, not the file name).
 
 ## Limitations
-Currently, the maximium image size is 27x27 for hints and intercom, and around 7x7 for broadcasts.
+Currently, the maximum uncompressed image size is 27x27 for hints and intercom, and around 7x7 for broadcasts. While images larger than 27x27 will be automatically compressed, images in broadcasts are more limited. If an image exceeds 27x27, it will be compressed so that it's small enough to function in hints and the intercom. This compression will cause it to lose quality, but will allow you to use larger images.
 
 ## Commands
 Here are all of the commands that Images has:
@@ -24,6 +24,7 @@ To add an image to Images, you need to first add it to the configuration. In you
   isURL: true
   scale: 26
   fps: auto
+  precache: true
 ```
 The first item (`name`) is the name you want the image to be set to. This will be the name that is used in your commands.
 
@@ -31,6 +32,10 @@ The second item (`location`) is where your image is located. This can be either 
 
 The third item (`isURL`) is whether or not your image's location is a URL. If it is, set this to `true`, otherwise `false`.
 
-The fourth item (`scale`) is the scale of an image. You can set this manually and try to find what works for you, or you can set it to `auto` to have the plugin determine it for you.
+Optional: The fourth item (`scale`) is the scale of an image. You can set this manually and try to find what works for you, or you can set it to `auto` to have the plugin determine it for you.
+
+Optional: The fifth item (`fps`) is the fps of the image. If your image is not animated, you don't need to worry about this.
+
+Optional: The sixth item (`precache`) is whether or not to the image should be automatically converted and cached. Setting this to `true` can help increase performance for the first loop of an image (or if it is not animated, the load time).
 
 Once you add your image to the config, you can use it in anywhere you can put an image into.
