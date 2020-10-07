@@ -145,16 +145,12 @@ namespace Images
                         Log.Error("The scale value for the custom intercom image is incorrect. Use an integer or \"auto\".");
                         continue;
                     }
-                
-                    var fps = 10;
 
-                    if (image.ContainsKey("fps") && image["fps"].Trim().ToLower() != "auto" && !int.TryParse(image["fps"].Trim().ToLower(), out fps))
-                    {
-                        Log.Error("The fps value for the custom intercom image is incorrect. Use an integer.");
-                        continue;
-                    }
-
-                    var handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, true, 1/fps);
+                    var handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale);
+                    Coroutines.Add(handle);
+                    handles.Add(handle);
+                    
+                    handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, false);
                     Coroutines.Add(handle);
                     handles.Add(handle);
                 }
