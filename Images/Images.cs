@@ -132,9 +132,7 @@ namespace Images
         private IEnumerator<float> RunPreCache(bool noWait = false)
         {
             if(!noWait) yield return Timing.WaitForSeconds(5f);
-            
-            var handles = new List<CoroutineHandle>();
-            
+
             foreach (var image in Config.Images)
             {
                 if (image.ContainsKey("precache") && image["precache"].Trim().ToLower() == "true")
@@ -149,17 +147,12 @@ namespace Images
 
                     var handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale);
                     Coroutines.Add(handle);
-                    handles.Add(handle);
+                    yield return Timing.WaitUntilDone(handle);
                     
                     handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, false);
                     Coroutines.Add(handle);
-                    handles.Add(handle);
+                    yield return Timing.WaitUntilDone(handle);
                 }
-            }
-            
-            foreach (var handle in handles)
-            {
-                yield return Timing.WaitUntilDone(handle);
             }
 
             CacheReady = true;

@@ -28,7 +28,7 @@ namespace Images
                 {"isURL", "true"},
                 {"scale", "26"},
                 {"fps", "auto"},
-                {"precache", "true"}
+                {"precache", "false"}
             }
         });
 
