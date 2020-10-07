@@ -59,9 +59,6 @@ namespace Images
                 GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(command);
             }
 
-            ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
-            IntercomText = null;
-            
             preCache = Timing.RunCoroutine(RunPreCache());
         }
 
@@ -115,7 +112,7 @@ namespace Images
             Coroutines.Clear();
             
             ImageCache.Clear();
-            preCache = Timing.RunCoroutine(RunPreCache());
+            preCache = Timing.RunCoroutine(RunPreCache(true));
             OnRoundStart();
 
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
@@ -132,8 +129,10 @@ namespace Images
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
         }
 
-        private IEnumerator<float> RunPreCache()
+        private IEnumerator<float> RunPreCache(bool noWait = false)
         {
+            if(!noWait) yield return Timing.WaitForSeconds(5f);
+            
             var handles = new List<CoroutineHandle>();
             
             foreach (var image in Config.Images)
@@ -164,6 +163,8 @@ namespace Images
             }
 
             CacheReady = true;
+            
+            Log.Info("Finished pre-caching items!");
         }
 
         private void OnRoundStart()
