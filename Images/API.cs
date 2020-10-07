@@ -164,7 +164,7 @@ namespace Images
 
                 handle(text);
 
-                yield return Timing.WaitForSeconds(waitTime);
+                if(waitTime != 0f) yield return Timing.WaitForSeconds(waitTime);
             }
 
             image.Dispose();

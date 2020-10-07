@@ -120,7 +120,7 @@ namespace Images
             foreach (var s in Images.Singleton.ImageCache[name])
             {
                 handle(s);
-                yield return Timing.WaitForSeconds(waitTime);
+                if(waitTime != 0f) yield return Timing.WaitForSeconds(waitTime);
             }
         }
         

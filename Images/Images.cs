@@ -145,11 +145,11 @@ namespace Images
                         continue;
                     }
 
-                    var handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale);
+                    var handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, true, 0f);
                     Coroutines.Add(handle);
                     yield return Timing.WaitUntilDone(handle);
                     
-                    handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, false);
+                    handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, false, 0f);
                     Coroutines.Add(handle);
                     yield return Timing.WaitUntilDone(handle);
                 }
