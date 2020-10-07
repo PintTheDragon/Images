@@ -100,7 +100,6 @@ namespace Images
 
                 if (size == 0f)
                 {
-                    if(image.Size.Height * image.Size.Width > 3000) throw new Exception("The image was too large. Please use an image with less that 3,000 pixels.");
                     size = Convert.ToInt32(scale == 0f ? Math.Floor((-.47*(((image.Size.Width+image.Size.Height)/2 > 60 ? 45 : (image.Width+image.Height)/2)))+28.72) : scale);
                 }
 
