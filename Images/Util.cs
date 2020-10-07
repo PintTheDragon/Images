@@ -13,6 +13,12 @@ namespace Images
     {
         internal static HandleCommandObject HandleCommand(ArraySegment<string> arguments, ICommandSender sender, out string response, bool doDuration, string name, string perm)
         {
+            if (!Images.Singleton.CacheReady)
+            {
+                response = "The cache is not ready yet. Please try again in a few seconds.";
+                return null;
+            }
+            
             var permission = false;
             var perPermission = false;
 

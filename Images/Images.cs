@@ -22,6 +22,7 @@ namespace Images
         internal Dictionary<string, List<string>> ImageCache = new Dictionary<string, List<string>>();
         internal CoroutineHandle IntercomHandle;
         internal List<CoroutineHandle> Coroutines = new List<CoroutineHandle>();
+        internal bool CacheReady = false;
 
         internal bool IReady = true;
         internal bool ITrans = false;
@@ -33,6 +34,8 @@ namespace Images
         public override void OnEnabled()
         {
             base.OnEnabled();
+            
+            CacheReady = false;
 
             Singleton = this;
             
@@ -57,11 +60,15 @@ namespace Images
 
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
             IntercomText = null;
+            
+            Timing.RunCoroutine(RunPreCache());
         }
 
         public override void OnDisabled()
         {
             base.OnDisabled();
+            
+            CacheReady = false;
 
             Timing.KillCoroutines(IntercomHandle);
             IntercomHandle = new CoroutineHandle();
@@ -98,6 +105,8 @@ namespace Images
 
         private void OnConfigReloaded()
         {
+            CacheReady = false;
+            
             Timing.KillCoroutines(IntercomHandle);
             IntercomHandle = new CoroutineHandle();
             
@@ -105,9 +114,8 @@ namespace Images
             Coroutines.Clear();
             
             ImageCache.Clear();
-            
-            OnRoundStart();
-            
+            Timing.RunCoroutine(RunPreCache());
+
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
             IntercomText = null;
         }
@@ -120,6 +128,46 @@ namespace Images
             Timing.KillCoroutines(Coroutines);
             Coroutines.Clear();
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
+        }
+
+        private IEnumerator<float> RunPreCache()
+        {
+            var handles = new List<CoroutineHandle>();
+            
+            foreach (var image in Config.Images)
+            {
+                if (image.ContainsKey("precache") && image["precache"].Trim().ToLower() == "true")
+                {
+                    var scale = 0;
+
+                    if (image.ContainsKey("scale") && image["scale"].Trim().ToLower() != "auto" && !int.TryParse(image["scale"].Trim().ToLower(), out scale))
+                    {
+                        Log.Error("The scale value for the custom intercom image is incorrect. Use an integer or \"auto\".");
+                        continue;
+                    }
+                
+                    var fps = 10;
+
+                    if (image.ContainsKey("fps") && image["fps"].Trim().ToLower() != "auto" && !int.TryParse(image["fps"].Trim().ToLower(), out fps))
+                    {
+                        Log.Error("The fps value for the custom intercom image is incorrect. Use an integer.");
+                        continue;
+                    }
+
+                    var handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, true, 1/fps);
+                    Coroutines.Add(handle);
+                    handles.Add(handle);
+                }
+            }
+            
+            foreach (var handle in handles)
+            {
+                yield return Timing.WaitUntilDone(handle);
+            }
+
+            CacheReady = true;
+
+            OnRoundStart();
         }
 
         private void OnRoundStart()

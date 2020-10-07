@@ -160,7 +160,7 @@ namespace Images
                     threshold += .5f;
                 }
 
-                if (System.Text.Encoding.Unicode.GetByteCount(text) > 32768) throw new Exception("Output text is too large. Please use a smaller image.");
+                if (System.Text.Encoding.Unicode.GetByteCount(text) > 32768) continue;
 
                 handle(text);
 
