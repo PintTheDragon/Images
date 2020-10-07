@@ -30,6 +30,7 @@ namespace Images
 
         private Harmony harmony;
         private List<ICommand> commands = new List<ICommand>();
+        private CoroutineHandle preCache = new CoroutineHandle();
 
         public override void OnEnabled()
         {
@@ -61,7 +62,7 @@ namespace Images
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
             IntercomText = null;
             
-            Timing.RunCoroutine(RunPreCache());
+            preCache = Timing.RunCoroutine(RunPreCache());
         }
 
         public override void OnDisabled()
@@ -114,7 +115,8 @@ namespace Images
             Coroutines.Clear();
             
             ImageCache.Clear();
-            Timing.RunCoroutine(RunPreCache());
+            preCache = Timing.RunCoroutine(RunPreCache());
+            OnRoundStart();
 
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
             IntercomText = null;
@@ -162,8 +164,6 @@ namespace Images
             }
 
             CacheReady = true;
-
-            OnRoundStart();
         }
 
         private void OnRoundStart()
@@ -204,6 +204,8 @@ namespace Images
 
         private IEnumerator<float> ShowIntercom(Dictionary<string, string> image, int scale, float fps)
         {
+            yield return Timing.WaitUntilDone(preCache);
+            
             List<string> frames = new List<string>();
 
             CoroutineHandle handle = new CoroutineHandle();
