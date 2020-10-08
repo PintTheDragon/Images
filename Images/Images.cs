@@ -36,7 +36,7 @@ namespace Images
         {
             base.OnEnabled();
             
-            CacheReady = false;
+            if(Config.EnablePrecache) CacheReady = false;
 
             Singleton = this;
             
@@ -66,7 +66,7 @@ namespace Images
         {
             base.OnDisabled();
             
-            CacheReady = false;
+            if(Config.EnablePrecache) CacheReady = false;
 
             Timing.KillCoroutines(IntercomHandle);
             IntercomHandle = new CoroutineHandle();
@@ -103,7 +103,7 @@ namespace Images
 
         private void OnConfigReloaded()
         {
-            CacheReady = false;
+            if(Config.EnablePrecache) CacheReady = false;
             
             Timing.KillCoroutines(IntercomHandle);
             IntercomHandle = new CoroutineHandle();
@@ -112,7 +112,7 @@ namespace Images
             Coroutines.Clear();
             
             ImageCache.Clear();
-            preCache = Timing.RunCoroutine(RunPreCache(true));
+            preCache = Timing.RunCoroutine(RunPreCache());
             OnRoundStart();
 
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
@@ -129,10 +129,10 @@ namespace Images
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
         }
 
-        private IEnumerator<float> RunPreCache(bool noWait = false)
+        private IEnumerator<float> RunPreCache()
         {
-            if(!noWait) yield return Timing.WaitForSeconds(5f);
-
+            if (!Config.EnablePrecache) yield break;
+            
             foreach (var image in Config.Images)
             {
                 if (image.ContainsKey("precache") && image["precache"].Trim().ToLower() == "true")

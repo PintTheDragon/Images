@@ -18,8 +18,7 @@ namespace Images
                 {"location", "C:\\Temp\\example.png"},
                 {"isURL", "false"},
                 {"scale", "auto"},
-                {"fps", "auto"},
-                {"precache", "true"}
+                {"fps", "auto"}
             },
             new Dictionary<string, string>()
             {
@@ -27,8 +26,7 @@ namespace Images
                 {"location", "https://pint.cloud/img2txt/smallimg.png"},
                 {"isURL", "true"},
                 {"scale", "26"},
-                {"fps", "auto"},
-                {"precache", "false"}
+                {"fps", "auto"}
             }
         });
 
@@ -49,5 +47,8 @@ namespace Images
 
         [Description("How many images should be cached. Caching helps reduce load on the server but will increase RAM usage. If too much RAM is being used, lower this, and if sending images takes too much time, increase this. Set it to 0 to disable caching.")]
         public int CacheSize { get; set; } = 20;
+
+        [Description("Enable precaching. This will cause performence issues when the server starts up and during reloads.")]
+        public bool EnablePrecache { get; set; } = false;
     }
 }
