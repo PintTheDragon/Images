@@ -22,7 +22,7 @@ namespace Images
         internal Dictionary<string, List<string>> ImageCache = new Dictionary<string, List<string>>();
         internal CoroutineHandle IntercomHandle;
         internal List<CoroutineHandle> Coroutines = new List<CoroutineHandle>();
-        internal bool CacheReady = false;
+        internal bool CacheReady = true;
 
         internal bool IReady = true;
         internal bool ITrans = false;
@@ -30,7 +30,7 @@ namespace Images
 
         private Harmony harmony;
         private List<ICommand> commands = new List<ICommand>();
-        private CoroutineHandle preCache = new CoroutineHandle();
+        private CoroutineHandle preCache;
 
         public override void OnEnabled()
         {
