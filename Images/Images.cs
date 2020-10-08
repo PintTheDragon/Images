@@ -148,6 +148,8 @@ namespace Images
                     var handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, true, 0f);
                     Coroutines.Add(handle);
                     yield return Timing.WaitUntilDone(handle);
+
+                    yield return Timing.WaitForSeconds(10f);
                     
                     handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, false, 0f);
                     Coroutines.Add(handle);
