@@ -93,8 +93,11 @@ namespace Images
             var size = 0f;
 
             var dim = new FrameDimension(image.FrameDimensionsList[0]);
+            var frames = image.GetFrameCount(dim);
 
-            for (var index = 0; index < image.GetFrameCount(dim); index++)
+            var fails = 0;
+            
+            for (var index = 0; index < frames; index++)
             {
                 image.SelectActiveFrame(dim, index);
                 
@@ -133,8 +136,11 @@ namespace Images
                                 if (threshold == 0f || (i == 0 && j == 0)) text += ((i == 0 && j == 0) ? "" : "</color>") + "<color=" + colorString + ">█";
                                 else
                                 {
-                                    var d = Math.Abs(pixel.GetHue() - pastPixel.GetHue());
-                                    var diff = d > 180 ? 360 - d : d;
+                                    var d1 = Math.Abs(pixel.GetHue() - pastPixel.GetHue());
+                                    var d2 = Math.Abs(pixel.GetSaturation() - pastPixel.GetSaturation());
+                                    var d3 = Math.Abs(pixel.GetBrightness() - pastPixel.GetBrightness());
+                                    
+                                    var diff = ((d1 > 180 ? 360 - d1 : d1) + (d2 > 180 ? 360 - d2 : d2) + (d3 > 180 ? 360 - d3 : d3))/3;
 
                                     if (diff > threshold) text += ((i == 0 && j == 0) ? "" : "</color>") + "<color=" + colorString + ">█";
                                     else
@@ -162,7 +168,11 @@ namespace Images
                     threshold += .5f;
                 }
 
-                if (System.Text.Encoding.Unicode.GetByteCount(text) > 32768) continue;
+                if (System.Text.Encoding.Unicode.GetByteCount(text) > 32768)
+                {
+                    fails++;
+                    continue;
+                }
 
                 handle(text);
 
@@ -170,6 +180,9 @@ namespace Images
             }
 
             image.Dispose();
+            
+            if(frames == 1 && fails > 0) throw new Exception("The image is too large to display.");
+            if(fails > 0) throw new Exception(fails+" frames have been dropped while attempting to display this image.");
         }
     }
 }
