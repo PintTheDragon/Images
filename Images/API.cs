@@ -140,7 +140,7 @@ namespace Images
                                     var d2 = Math.Abs(pixel.GetSaturation() - pastPixel.GetSaturation());
                                     var d3 = Math.Abs(pixel.GetBrightness() - pastPixel.GetBrightness());
                                     
-                                    var diff = (((d1 > 180 ? 360 - d1 : d1) * .555f) + d2 + d3)/3;
+                                    var diff = (((d1 > 180 ? 360 - d1 : d1) * .755f) + (d2 * 2f) + (d3 * .7f))/3;
 
                                     if (diff > threshold) text += ((i == 0 && j == 0) ? "" : "</color>") + "<color=" + colorString + ">█";
                                     else
