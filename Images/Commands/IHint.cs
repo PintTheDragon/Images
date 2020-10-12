@@ -49,6 +49,8 @@ namespace Images.Commands
             {
                 handle = Util.LocationToText(obj.image["location"], text =>
                     {
+                        if (DateTime.UtcNow - startTime > TimeSpan.FromSeconds(obj.duration)) return;
+
                         var newText = text.Replace("\\n", "\n");
 
                         frames.Add(newText);
