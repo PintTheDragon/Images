@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using Exiled.API.Features;
 using MEC;
 
@@ -90,6 +91,8 @@ namespace Images
         {
             if (image == null) yield break;
 
+            var wait = TimeSpan.FromSeconds(waitTime);
+
             var size = 0f;
 
             var dim = new FrameDimension(image.FrameDimensionsList[0]);
@@ -99,6 +102,8 @@ namespace Images
             
             for (var index = 0; index < frames; index++)
             {
+                var time = DateTime.Now;
+                
                 image.SelectActiveFrame(dim, index);
                 
                 if(image.Size.Height * image.Size.Width > 10000) throw new Exception("The image was too large. Please use an image with less that 10,000 pixels. Your image doesn't need to be more than 100x100.");
@@ -176,7 +181,11 @@ namespace Images
                 
                 handle(new FrameData(text));
 
-                if(waitTime != 0f) yield return Timing.WaitForSeconds(waitTime);
+                if (waitTime != 0f)
+                {
+                    var diff = DateTime.Now - time;
+                    if(diff < wait) yield return Timing.WaitForSeconds((float) (wait-diff).TotalSeconds);
+                }
             }
 
             image.Dispose();
