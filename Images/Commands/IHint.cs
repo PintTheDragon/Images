@@ -74,7 +74,7 @@ namespace Images.Commands
             
             if (frames.Count <= 1)
             {
-                if (frames.Count() == 1)
+                if (frames.Count == 1)
                 {
                     foreach (var player in Player.List)
                     {
