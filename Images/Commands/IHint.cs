@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CommandSystem;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
@@ -70,8 +71,18 @@ namespace Images.Commands
             yield return Timing.WaitUntilDone(handle);
 
             var cur = 0;
-
-            if (frames.Count <= 1) yield break;
+            
+            if (frames.Count <= 1)
+            {
+                if (frames.Count() == 1)
+                {
+                    foreach (var player in Player.List)
+                    {
+                        player.ShowHint(frames[0], obj.duration-2f);
+                    }
+                }
+                yield break;
+            }
             while (DateTime.UtcNow - startTime < TimeSpan.FromSeconds(obj.duration))
             {
                 foreach (var player in Player.List)
