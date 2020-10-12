@@ -36,7 +36,7 @@ namespace Images
             return Image.FromFile(path);
         }
 
-        private static CoroutineHandle FileToText(string path, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
+        private static CoroutineHandle FileToText(string path, Action<FrameData> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
         {
             var file = GetBitmapFromFile(path);
             if (file == null) return new CoroutineHandle();
@@ -44,7 +44,7 @@ namespace Images
             return BitmapToText(file, handle, scale, shapeCorrection, waitTime);
         }
 
-        private static CoroutineHandle URLToText(string url, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
+        private static CoroutineHandle URLToText(string url, Action<FrameData> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
         {
             var file = GetBitmapFromURL(url);
             if (file == null) return new CoroutineHandle();
@@ -56,12 +56,12 @@ namespace Images
         /// Converts an image from a File Path or URL to some text.
         /// </summary>
         /// <param name="loc">The File Path/URL of the image.</param>
-        /// <param name="handle">An <see cref="Action<string>"/> that will be ran for each frame of the image.</param>
+        /// <param name="handle">An <see cref="Action<FrameData>"/> that will be ran for each frame of the image.</param>
         /// <param name="isURL">Whether the location is a URL.</param>
         /// <param name="scale">The <see cref="float"/> that determines the scale. Leave at default to automatically calculate scale.</param>
         /// <param name="shapeCorrection">Whether the shape of the image should be automatically corrected.</param>
         /// <param name="waitTime">How long should be waited after every frame in an image.</param>
-        public static CoroutineHandle LocationToText(string loc, Action<string> handle, bool isURL = false, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
+        public static CoroutineHandle LocationToText(string loc, Action<FrameData> handle, bool isURL = false, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
         {
             if (isURL)
             {
@@ -77,16 +77,16 @@ namespace Images
         /// Converts an image to some text.
         /// </summary>
         /// <param name="image">The <see cref="Image"/> that will be converted to text.</param>
-        /// <param name="handle">An <see cref="Action<string>"/> that will be ran for each frame of the image.</param>
+        /// <param name="handle">An <see cref="Action<FrameData>"/> that will be ran for each frame of the image.</param>
         /// <param name="scale">The <see cref="float"/> that determines the scale. Leave at default to automatically calculate scale.</param>
         /// <param name="shapeCorrection">Whether or not the shape of the image should be automatically corrected.</param>
         /// <param name="waitTime">How long should be waited after every frame in an image.</param>
-        public static CoroutineHandle BitmapToText(Image bitmap, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
+        public static CoroutineHandle BitmapToText(Image bitmap, Action<FrameData> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
         {
             return Timing.RunCoroutine(_BitmapToText(bitmap, handle, scale, shapeCorrection, waitTime));
         }
         
-        private static IEnumerator<float> _BitmapToText(Image image, Action<string> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
+        private static IEnumerator<float> _BitmapToText(Image image, Action<FrameData> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
         {
             if (image == null) yield break;
 
@@ -173,13 +173,15 @@ namespace Images
                     fails++;
                     continue;
                 }
-
-                handle(text);
+                
+                handle(new FrameData(text));
 
                 if(waitTime != 0f) yield return Timing.WaitForSeconds(waitTime);
             }
 
             image.Dispose();
+            
+            handle(new FrameData(null) {Last = true});
             
             if(frames == 1 && fails > 0) throw new Exception("The image is too large to display.");
             if(fails > 0) throw new Exception(fails+" frames have been dropped while attempting to display this image.");

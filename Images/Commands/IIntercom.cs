@@ -19,14 +19,14 @@ namespace Images.Commands
             {
                 ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
                 Images.Singleton.IntercomText = null;
-                response = "Reset intercom";
+                response = "Reset intercom.";
                 return true;
             }
             
             HandleCommandObject obj = Util.HandleCommand(arguments, sender, out response, false, "iintercom", "images.iintercom");
             if (obj == null) return true;
 
-            if (Images.Singleton.IntercomHandle.IsRunning) Timing.KillCoroutines(Images.Singleton.IntercomHandle);
+            Timing.KillCoroutines(Images.Singleton.IntercomHandle);
             Images.Singleton.IntercomHandle = Timing.RunCoroutine(ShowIntercom(obj));
             Images.Singleton.Coroutines.Add(Images.Singleton.IntercomHandle);
 

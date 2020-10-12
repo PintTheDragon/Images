@@ -19,10 +19,13 @@ namespace Images
 
         internal static Images Singleton;
         internal string IntercomText = null;
-        internal Dictionary<string, List<string>> ImageCache = new Dictionary<string, List<string>>();
-        internal CoroutineHandle IntercomHandle;
+        internal Dictionary<string, CachedImage> ImageCache = new Dictionary<string, CachedImage>();
         internal List<CoroutineHandle> Coroutines = new List<CoroutineHandle>();
         internal bool CacheReady = true;
+        
+        internal CoroutineHandle IntercomHandle;
+        internal CoroutineHandle HintHandle;
+        internal CoroutineHandle BroadcastHandle;
 
         internal bool IReady = true;
         internal bool ITrans = false;
@@ -145,13 +148,13 @@ namespace Images
                         continue;
                     }
 
-                    var handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, true, 0f);
+                    var handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, true, 1f);
                     Coroutines.Add(handle);
                     yield return Timing.WaitUntilDone(handle);
 
                     yield return Timing.WaitForSeconds(10f);
                     
-                    handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, false, 0f);
+                    handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, false, 1f);
                     Coroutines.Add(handle);
                     yield return Timing.WaitUntilDone(handle);
                 }

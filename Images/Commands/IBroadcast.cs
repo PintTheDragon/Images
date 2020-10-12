@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CommandSystem;
 using Exiled.API.Features;
+using Exiled.Permissions.Extensions;
 using MEC;
 
 namespace Images.Commands
@@ -14,10 +15,23 @@ namespace Images.Commands
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
+            if (sender.CheckPermission("images.ibc") && arguments.Array != null && arguments.Array.Length > 1 && (arguments.Array[1].Trim().ToLower() == "reset" || arguments.Array[1].Trim().ToLower() == "none"))
+            {
+                foreach (var player in Player.List)
+                {
+                    player.ClearBroadcasts();
+                }
+                
+                response = "Reset broadcasts.";
+                return true;
+            }
+            
             HandleCommandObject obj = Util.HandleCommand(arguments, sender, out response, true, "ibroadcast", "images.ibc");
             if (obj == null) return true;
 
-            Images.Singleton.Coroutines.Add(Timing.RunCoroutine(ShowBroadcast(obj)));
+            Timing.KillCoroutines(Images.Singleton.BroadcastHandle);
+            Images.Singleton.BroadcastHandle = Timing.RunCoroutine(ShowBroadcast(obj));
+            Images.Singleton.Coroutines.Add(Images.Singleton.BroadcastHandle);
 
             response = "Creating image and displaying broadcast.";
             return true;

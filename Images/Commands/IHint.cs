@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CommandSystem;
 using Exiled.API.Features;
+using Exiled.Permissions.Extensions;
 using MEC;
 using UnityEngine;
 
@@ -15,10 +16,23 @@ namespace Images.Commands
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
+            if (sender.CheckPermission("images.ihint") && arguments.Array != null && arguments.Array.Length > 1 && (arguments.Array[1].Trim().ToLower() == "reset" || arguments.Array[1].Trim().ToLower() == "none"))
+            {
+                foreach (var player in Player.List)
+                {
+                    player.ShowHint("", 1f);
+                }
+                
+                response = "Reset hints.";
+                return true;
+            }
+            
             HandleCommandObject obj = Util.HandleCommand(arguments, sender, out response, true, "ihint", "images.ihint");
             if (obj == null) return true;
 
-            Images.Singleton.Coroutines.Add(Timing.RunCoroutine(ShowHint(obj)));
+            Timing.KillCoroutines(Images.Singleton.HintHandle);
+            Images.Singleton.HintHandle = Timing.RunCoroutine(ShowHint(obj));
+            Images.Singleton.Coroutines.Add(Images.Singleton.HintHandle);
 
             response = "Creating image and displaying hint.";
             return true;

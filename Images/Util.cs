@@ -95,14 +95,21 @@ namespace Images
 
             CoroutineHandle coroutine;
 
-            if (!Images.Singleton.ImageCache.ContainsKey(cacheName))
+            if (!Images.Singleton.ImageCache.ContainsKey(cacheName) || (Images.Singleton.ImageCache.ContainsKey(cacheName) && !Images.Singleton.ImageCache[cacheName].Complete))
             {
-                Images.Singleton.ImageCache[cacheName] = new List<string>();
+                Images.Singleton.ImageCache[cacheName] = new CachedImage();
                 
                 coroutine = API.LocationToText(loc, data =>
                 {
-                    Images.Singleton.ImageCache[cacheName].Add(data);
-                    handle(data);
+                    if (!data.Last)
+                    {
+                        Images.Singleton.ImageCache[cacheName].Frames.Add(data.Data);
+                        handle(data.Data);
+                    }
+                    else
+                    {
+                        Images.Singleton.ImageCache[cacheName].Complete = true;
+                    }
                 }, isURL, scale, shapeCorrection, waitTime);
             }
             else
@@ -117,7 +124,7 @@ namespace Images
 
         private static IEnumerator<float> LoopCache(Action<string> handle, string name, float waitTime = .1f)
         {
-            foreach (var s in Images.Singleton.ImageCache[name])
+            foreach (var s in Images.Singleton.ImageCache[name].Frames)
             {
                 handle(s);
                 if(waitTime != 0f) yield return Timing.WaitForSeconds(waitTime);
