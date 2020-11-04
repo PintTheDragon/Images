@@ -15,7 +15,7 @@ namespace Images
     {
         public override string Name { get; } = "Images";
         public override string Author { get; } = "PintTheDragon";
-        public override Version Version { get; } = new Version(1, 1, 2);
+        public override Version Version { get; } = new Version(1, 1, 3);
 
         internal static Images Singleton;
         internal string IntercomText = null;
