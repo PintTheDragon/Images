@@ -74,7 +74,10 @@ namespace Images
             Timing.KillCoroutines(IntercomHandle);
             IntercomHandle = new CoroutineHandle();
             
-            Timing.KillCoroutines(Coroutines);
+            foreach (var coroutineHandle in Coroutines)
+            {
+                Timing.KillCoroutines(coroutineHandle);
+            }
             Coroutines.Clear();
 
             Singleton = null;
@@ -111,7 +114,10 @@ namespace Images
             Timing.KillCoroutines(IntercomHandle);
             IntercomHandle = new CoroutineHandle();
             
-            Timing.KillCoroutines(Coroutines);
+            foreach (var coroutineHandle in Coroutines)
+            {
+                Timing.KillCoroutines(coroutineHandle);
+            }
             Coroutines.Clear();
             
             ImageCache.Clear();
@@ -127,7 +133,10 @@ namespace Images
             Timing.KillCoroutines(IntercomHandle);
             IntercomHandle = new CoroutineHandle();
             
-            Timing.KillCoroutines(Coroutines);
+            foreach (var coroutineHandle in Coroutines)
+            {
+                Timing.KillCoroutines(coroutineHandle);
+            }
             Coroutines.Clear();
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
         }
