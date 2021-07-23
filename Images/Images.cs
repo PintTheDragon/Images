@@ -156,14 +156,22 @@ namespace Images
                         Log.Error("The scale value for the custom intercom image is incorrect. Use an integer or \"auto\".");
                         continue;
                     }
+                    
+                    var compress = true;
 
-                    var handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, true, 1f);
+                    if (image.ContainsKey("compress") && !bool.TryParse(image["compress"].Trim().ToLower(), out compress))
+                    {
+                        Log.Error("The compress parameter for this image is invalid. Only use booleans");
+                        continue;
+                    }
+
+                    var handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, true, 1f, compress);
                     Coroutines.Add(handle);
                     yield return Timing.WaitUntilDone(handle);
 
                     yield return Timing.WaitForSeconds(10f);
                     
-                    handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, false, 1f);
+                    handle = Util.LocationToText(image["location"], text => {}, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, false, 1f, compress);
                     Coroutines.Add(handle);
                     yield return Timing.WaitUntilDone(handle);
                 }
@@ -201,16 +209,24 @@ namespace Images
                 return;
             }
 
+            var compress = true;
+
+            if (image.ContainsKey("compress") && !bool.TryParse(image["compress"].Trim().ToLower(), out compress))
+            {
+                Log.Info("The compress parameter for this image is invalid. Only use booleans");
+                return;
+            }
+
             Timing.KillCoroutines(IntercomHandle);
                 
             IntercomText = null;
             ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
                 
-            IntercomHandle = Timing.RunCoroutine(ShowIntercom(image, scale, fps));
+            IntercomHandle = Timing.RunCoroutine(ShowIntercom(image, scale, fps, compress));
             Coroutines.Add(IntercomHandle);
         }
 
-        private IEnumerator<float> ShowIntercom(Dictionary<string, string> image, int scale, float fps)
+        private IEnumerator<float> ShowIntercom(Dictionary<string, string> image, int scale, float fps, bool compress)
         {
             yield return Timing.WaitUntilDone(preCache);
             
@@ -224,7 +240,7 @@ namespace Images
                         IntercomText = text.Replace("\\n", "\n");
                         ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText;
                         frames.Add(IntercomText);
-                    }, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, true, 1/fps);
+                    }, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, true, 1/fps, compress);
                 
                 Coroutines.Add(handle);
             }

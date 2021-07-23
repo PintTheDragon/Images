@@ -60,7 +60,7 @@ namespace Images.Commands
                         {
                             player.ShowHint(newText, 2f);
                         }
-                    }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale, false, .4f);
+                    }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale, false, .4f, obj.compress);
                 Images.Singleton.Coroutines.Add(handle);
             }
             catch (Exception e)

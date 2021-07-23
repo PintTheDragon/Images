@@ -37,20 +37,20 @@ namespace Images
             return Image.FromFile(path);
         }
 
-        private static CoroutineHandle FileToText(string path, Action<FrameData> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
+        private static CoroutineHandle FileToText(string path, Action<FrameData> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f, bool compress = true)
         {
             var file = GetBitmapFromFile(path);
             if (file == null) return new CoroutineHandle();
 
-            return BitmapToText(file, handle, scale, shapeCorrection, waitTime);
+            return BitmapToText(file, handle, scale, shapeCorrection, waitTime, compress);
         }
 
-        private static CoroutineHandle URLToText(string url, Action<FrameData> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
+        private static CoroutineHandle URLToText(string url, Action<FrameData> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f, bool compress = true)
         {
             var file = GetBitmapFromURL(url);
             if (file == null) return new CoroutineHandle();
 
-            return BitmapToText(file, handle, scale, shapeCorrection, waitTime);
+            return BitmapToText(file, handle, scale, shapeCorrection, waitTime, compress);
         }
 
         /// <summary>
@@ -62,15 +62,16 @@ namespace Images
         /// <param name="scale">The <see cref="float"/> that determines the scale. Leave at default to automatically calculate scale.</param>
         /// <param name="shapeCorrection">Whether the shape of the image should be automatically corrected.</param>
         /// <param name="waitTime">How long should be waited after every frame in an image.</param>
-        public static CoroutineHandle LocationToText(string loc, Action<FrameData> handle, bool isURL = false, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
+        /// <param name="compress">Should compression be applied to the image?</param>
+        public static CoroutineHandle LocationToText(string loc, Action<FrameData> handle, bool isURL = false, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f, bool compress = true)
         {
             if (isURL)
             {
-                return URLToText(loc, handle, scale, shapeCorrection, waitTime);
+                return URLToText(loc, handle, scale, shapeCorrection, waitTime, compress);
             }
             else
             {
-                return FileToText(loc, handle, scale, shapeCorrection, waitTime);
+                return FileToText(loc, handle, scale, shapeCorrection, waitTime, compress);
             }
         }
 
@@ -82,12 +83,13 @@ namespace Images
         /// <param name="scale">The <see cref="float"/> that determines the scale. Leave at default to automatically calculate scale.</param>
         /// <param name="shapeCorrection">Whether or not the shape of the image should be automatically corrected.</param>
         /// <param name="waitTime">How long should be waited after every frame in an image.</param>
-        public static CoroutineHandle BitmapToText(Image bitmap, Action<FrameData> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
+        /// <param name="compress">Should compression be applied to the image?</param>
+        public static CoroutineHandle BitmapToText(Image bitmap, Action<FrameData> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f, bool compress = true)
         {
-            return Timing.RunCoroutine(_BitmapToText(bitmap, handle, scale, shapeCorrection, waitTime));
+            return Timing.RunCoroutine(_BitmapToText(bitmap, handle, scale, shapeCorrection, waitTime, compress));
         }
         
-        private static IEnumerator<float> _BitmapToText(Image image, Action<FrameData> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
+        private static IEnumerator<float> _BitmapToText(Image image, Action<FrameData> handle, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f, bool compress = true)
         {
             if (image == null) yield break;
 
@@ -147,7 +149,7 @@ namespace Images
                                     
                                     var diff = (((d1 > 180 ? 360 - d1 : d1) * .755f) + (d2 * 2f) + (d3 * .7f))/3;
 
-                                    if (diff > threshold) text += ((i == 0 && j == 0) ? "" : "</color>") + "<color=" + colorString + ">█";
+                                    if (compress && diff > threshold) text += ((i == 0 && j == 0) ? "" : "</color>") + "<color=" + colorString + ">█";
                                     else
                                     {
                                         pixel = pastPixel;

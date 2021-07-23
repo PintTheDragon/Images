@@ -82,12 +82,20 @@ namespace Images
                 return null;
             }
 
+            var compress = true;
+
+            if (image.ContainsKey("compress") && !bool.TryParse(image["compress"].Trim().ToLower(), out compress))
+            {
+                response = "The compress parameter for this image is invalid. Only use booleans";
+                return null;
+            }
+
             response = "Error";
 
-            return new HandleCommandObject(imageList[0], duration, scale, fps);
+            return new HandleCommandObject(imageList[0], duration, scale, fps, compress);
         }
 
-        internal static CoroutineHandle LocationToText(string loc, Action<string> handle, string name, bool isURL = false, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f)
+        internal static CoroutineHandle LocationToText(string loc, Action<string> handle, string name, bool isURL = false, float scale = 0f, bool shapeCorrection = true, float waitTime = .1f, bool compress = true)
         {
             var cacheName = name + (shapeCorrection ? "y" : "n");
             
@@ -110,7 +118,7 @@ namespace Images
                     {
                         Images.Singleton.ImageCache[cacheName].Complete = true;
                     }
-                }, isURL, scale, shapeCorrection, waitTime);
+                }, isURL, scale, shapeCorrection, waitTime, compress);
             }
             else
             {

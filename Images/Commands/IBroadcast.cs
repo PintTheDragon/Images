@@ -49,7 +49,7 @@ namespace Images.Commands
                     {
                         player.Broadcast((ushort) obj.duration, text);
                     }
-                }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale, true, obj.fps);
+                }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale, true, obj.fps, obj.compress);
                 Images.Singleton.Coroutines.Add(handle);
             }
             catch (Exception e)
