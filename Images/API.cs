@@ -178,6 +178,7 @@ namespace Images
                 if (System.Text.Encoding.Unicode.GetByteCount(text) > 32768)
                 {
                     fails++;
+                    yield return Timing.WaitForOneFrame;
                     continue;
                 }
                 
@@ -187,7 +188,9 @@ namespace Images
                 {
                     var diff = DateTime.Now - time;
                     if(diff < wait) yield return Timing.WaitForSeconds((float) (wait-diff).TotalSeconds);
+                    else yield return Timing.WaitForOneFrame;
                 }
+                else yield return Timing.WaitForOneFrame;
             }
 
             image.Dispose();
