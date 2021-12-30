@@ -37,48 +37,52 @@
           <Private>True</Private>
         </Reference>
         <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>lib\Assembly-CSharp-Publicized.dll</HintPath>
+          <HintPath>$(EXILED_REFERENCES)\Assembly-CSharp-Publicized.dll</HintPath>
         </Reference>
         <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>lib\Assembly-CSharp-firstpass.dll</HintPath>
+          <HintPath>$(EXILED_REFERENCES)\Assembly-CSharp-firstpass.dll</HintPath>
         </Reference>
         <Reference Include="CommandSystem.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>lib\CommandSystem.Core.dll</HintPath>
+          <HintPath>$(EXILED_REFERENCES)\CommandSystem.Core.dll</HintPath>
         </Reference>
-        <Reference Include="Exiled.API, Version=2.11.1.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.2.11.1\lib\net472\Exiled.API.dll</HintPath>
+        <Reference Include="Exiled.API, Version=4.1.7.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\packages\EXILED.4.1.7\lib\net472\Exiled.API.dll</HintPath>
           <Private>True</Private>
         </Reference>
-        <Reference Include="Exiled.Bootstrap, Version=2.11.1.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.2.11.1\lib\net472\Exiled.Bootstrap.dll</HintPath>
+        <Reference Include="Exiled.Bootstrap, Version=4.1.7.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\packages\EXILED.4.1.7\lib\net472\Exiled.Bootstrap.dll</HintPath>
           <Private>True</Private>
         </Reference>
-        <Reference Include="Exiled.CreditTags, Version=2.11.1.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.2.11.1\lib\net472\Exiled.CreditTags.dll</HintPath>
+        <Reference Include="Exiled.CreditTags, Version=4.1.7.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\packages\EXILED.4.1.7\lib\net472\Exiled.CreditTags.dll</HintPath>
           <Private>True</Private>
         </Reference>
-        <Reference Include="Exiled.CustomItems, Version=2.11.1.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.2.11.1\lib\net472\Exiled.CustomItems.dll</HintPath>
+        <Reference Include="Exiled.CustomItems, Version=4.1.7.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\packages\EXILED.4.1.7\lib\net472\Exiled.CustomItems.dll</HintPath>
           <Private>True</Private>
         </Reference>
-        <Reference Include="Exiled.Events, Version=2.11.1.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.2.11.1\lib\net472\Exiled.Events.dll</HintPath>
+        <Reference Include="Exiled.CustomRoles, Version=4.1.7.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\packages\EXILED.4.1.7\lib\net472\Exiled.CustomRoles.dll</HintPath>
           <Private>True</Private>
         </Reference>
-        <Reference Include="Exiled.Loader, Version=2.11.1.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.2.11.1\lib\net472\Exiled.Loader.dll</HintPath>
+        <Reference Include="Exiled.Events, Version=4.1.7.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\packages\EXILED.4.1.7\lib\net472\Exiled.Events.dll</HintPath>
           <Private>True</Private>
         </Reference>
-        <Reference Include="Exiled.Permissions, Version=2.11.1.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.2.11.1\lib\net472\Exiled.Permissions.dll</HintPath>
+        <Reference Include="Exiled.Loader, Version=4.1.7.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\packages\EXILED.4.1.7\lib\net472\Exiled.Loader.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="Exiled.Permissions, Version=4.1.7.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\packages\EXILED.4.1.7\lib\net472\Exiled.Permissions.dll</HintPath>
           <Private>True</Private>
         </Reference>
         <Reference Include="Exiled.Updater, Version=3.1.1.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\EXILED.2.11.1\lib\net472\Exiled.Updater.dll</HintPath>
+          <HintPath>..\packages\EXILED.4.1.7\lib\net472\Exiled.Updater.dll</HintPath>
           <Private>True</Private>
         </Reference>
         <Reference Include="Mirror, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>lib\Mirror.dll</HintPath>
+          <HintPath>$(EXILED_REFERENCES)\Mirror.dll</HintPath>
         </Reference>
         <Reference Include="System" />
         <Reference Include="System.Core" />
@@ -89,10 +93,10 @@
         <Reference Include="System.Runtime.InteropServices.RuntimeInformation" />
         <Reference Include="System.Xml" />
         <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>lib\UnityEngine.dll</HintPath>
+          <HintPath>$(EXILED_REFERENCES)\UnityEngine.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>lib\UnityEngine.CoreModule.dll</HintPath>
+          <HintPath>$(EXILED_REFERENCES)\UnityEngine.CoreModule.dll</HintPath>
         </Reference>
     </ItemGroup>
     <ItemGroup>
