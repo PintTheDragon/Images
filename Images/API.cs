@@ -173,6 +173,8 @@ namespace Images
                     text += "</size>";
 
                     threshold += .5f;
+
+                    yield return Timing.WaitForOneFrame;
                 }
 
                 if (System.Text.Encoding.Unicode.GetByteCount(text) > 32768)
