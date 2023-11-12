@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CommandSystem;
 using Exiled.API.Features;
-using Exiled.Events.EventArgs;
+using Exiled.Events.EventArgs.Player;
 using HarmonyLib;
 using Images.Commands;
 using MEC;
@@ -18,21 +18,14 @@ namespace Images
         public override Version Version { get; } = new Version(1, 1, 3);
 
         internal static Images Singleton;
-        internal string IntercomText = null;
         internal Dictionary<string, CachedImage> ImageCache = new Dictionary<string, CachedImage>();
         internal List<CoroutineHandle> Coroutines = new List<CoroutineHandle>();
         internal bool CacheReady = true;
         
-        internal CoroutineHandle IntercomHandle;
         internal CoroutineHandle HintHandle;
         internal CoroutineHandle BroadcastHandle;
 
-        internal bool IReady = true;
-        internal bool ITrans = false;
-        internal bool ICool = false;
-
         private Harmony harmony;
-        private List<ICommand> commands = new List<ICommand>();
         private CoroutineHandle preCache;
 
         public override void OnEnabled()
@@ -46,21 +39,8 @@ namespace Images
             harmony = new Harmony("PintImages");
             harmony.PatchAll();
 
-            Exiled.Events.Handlers.Server.RoundStarted += OnRoundStart;
             Exiled.Events.Handlers.Server.RestartingRound += OnRoundRestart;
-            Exiled.Events.Handlers.Player.Joined += OnPlayerJoin;
             Exiled.Events.Handlers.Server.ReloadedConfigs += OnConfigReloaded;
-            
-            commands.Clear();
-            commands.Add(new IBroadcast());
-            commands.Add(new IHint());
-            commands.Add(new IIntercom());
-            
-            foreach (var command in commands)
-            {
-                CommandProcessor.RemoteAdminCommandHandler.RegisterCommand(command);
-                GameCore.Console.singleton.ConsoleCommandHandler.RegisterCommand(command);
-            }
 
             preCache = Timing.RunCoroutine(RunPreCache());
         }
@@ -71,9 +51,6 @@ namespace Images
             
             if(Config.EnablePrecache) CacheReady = false;
 
-            Timing.KillCoroutines(IntercomHandle);
-            IntercomHandle = new CoroutineHandle();
-            
             foreach (var coroutineHandle in Coroutines)
             {
                 Timing.KillCoroutines(coroutineHandle);
@@ -84,36 +61,16 @@ namespace Images
             
             harmony.UnpatchAll();
             
-            Exiled.Events.Handlers.Server.RoundStarted -= OnRoundStart;
             Exiled.Events.Handlers.Server.RestartingRound -= OnRoundRestart;
-            Exiled.Events.Handlers.Player.Joined -= OnPlayerJoin;
             Exiled.Events.Handlers.Server.ReloadedConfigs -= OnConfigReloaded;
-            
-            foreach (var command in commands)
-            {
-                CommandProcessor.RemoteAdminCommandHandler.UnregisterCommand(command);
-                GameCore.Console.singleton.ConsoleCommandHandler.UnregisterCommand(command);
-            }
 
-            commands.Clear();
             ImageCache.Clear();
-            
-            ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
-            IntercomText = null;
-        }
-
-        private void OnPlayerJoin(JoinedEventArgs ev)
-        {
-            if(IntercomText != null) Timing.CallDelayed(2f, () => ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText);
         }
 
         private void OnConfigReloaded()
         {
             if(Config.EnablePrecache) CacheReady = false;
-            
-            Timing.KillCoroutines(IntercomHandle);
-            IntercomHandle = new CoroutineHandle();
-            
+
             foreach (var coroutineHandle in Coroutines)
             {
                 Timing.KillCoroutines(coroutineHandle);
@@ -122,23 +79,15 @@ namespace Images
             
             ImageCache.Clear();
             preCache = Timing.RunCoroutine(RunPreCache());
-            OnRoundStart();
-
-            ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
-            IntercomText = null;
         }
 
         private void OnRoundRestart()
         {
-            Timing.KillCoroutines(IntercomHandle);
-            IntercomHandle = new CoroutineHandle();
-            
             foreach (var coroutineHandle in Coroutines)
             {
                 Timing.KillCoroutines(coroutineHandle);
             }
             Coroutines.Clear();
-            ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
         }
 
         private IEnumerator<float> RunPreCache()
@@ -180,91 +129,6 @@ namespace Images
             CacheReady = true;
             
             Log.Info("Finished pre-caching items!");
-        }
-
-        private void OnRoundStart()
-        {
-            RunIntercomImage(Config.DefaultIntercomImage);
-        }
-
-        internal void RunIntercomImage(string imageName)
-        {
-            if (imageName == "none" || Config.Images.Count(img => img["name"].Trim().ToLower().Replace(" ", "") == imageName) <= 0) return;
-            
-            var image = Config.Images.First(img => img["name"].Trim().ToLower().Replace(" ", "") == imageName);
-                
-            var scale = 0;
-
-            if (image.ContainsKey("scale") && image["scale"].Trim().ToLower() != "auto" && !int.TryParse(image["scale"].Trim().ToLower(), out scale))
-            {
-                Log.Error("The scale value for the custom intercom image is incorrect. Use an integer or \"auto\".");
-                return;
-            }
-                
-            var fps = 10;
-
-            if (image.ContainsKey("fps") && image["fps"].Trim().ToLower() != "auto" && !int.TryParse(image["fps"].Trim().ToLower(), out fps))
-            {
-                Log.Error("The fps value for the custom intercom image is incorrect. Use an integer.");
-                return;
-            }
-
-            var compress = true;
-
-            if (image.ContainsKey("compress") && !bool.TryParse(image["compress"].Trim().ToLower(), out compress))
-            {
-                Log.Info("The compress parameter for this image is invalid. Only use booleans");
-                return;
-            }
-
-            Timing.KillCoroutines(IntercomHandle);
-                
-            IntercomText = null;
-            ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = "";
-                
-            IntercomHandle = Timing.RunCoroutine(ShowIntercom(image, scale, fps, compress));
-            Coroutines.Add(IntercomHandle);
-        }
-
-        private IEnumerator<float> ShowIntercom(Dictionary<string, string> image, int scale, float fps, bool compress)
-        {
-            yield return Timing.WaitUntilDone(preCache);
-            
-            List<string> frames = new List<string>();
-
-            CoroutineHandle handle = new CoroutineHandle();
-            try
-            {
-                handle = Util.LocationToText(image["location"], text =>
-                    {
-                        IntercomText = text.Replace("\\n", "\n");
-                        ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText;
-                        frames.Add(IntercomText);
-                    }, image["name"].Trim().ToLower(), image["isURL"] == "true", scale, true, 1/fps, compress);
-                
-                Coroutines.Add(handle);
-            }
-            catch (Exception e)
-            {
-                Log.Error(e);
-            }
-
-            yield return Timing.WaitUntilDone(handle);
-
-            var cur = 0;
-
-            if (frames.Count > 1)
-            {
-                while (true)
-                {
-                    IntercomText = frames[cur % frames.Count];
-                    ReferenceHub.HostHub.GetComponent<Intercom>().CustomContent = IntercomText;
-
-                    yield return Timing.WaitForSeconds(1/fps);
-
-                    cur++;
-                }
-            }
         }
     }
 }

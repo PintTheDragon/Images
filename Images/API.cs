@@ -14,21 +14,16 @@ namespace Images
     {
         private static Image GetBitmapFromURL(string url)
         {
-            var ms = new MemoryStream();
-            
-            var stream = WebRequest.Create(url)?.GetResponse()?.GetResponseStream();
-            if (stream == null) return null;
-                
-            stream.CopyTo(ms);
-            ms.Position = 0;
+            using (var client = new WebClient())
+            {
+                var data = client.DownloadData(url);
 
-            Image image = Image.FromStream(ms);
-                
-            stream.Flush();
-            stream.Dispose();
-                
-            return image;
+                using (var mem = new MemoryStream(data))
+                {
+                    return Image.FromStream(mem);
+                }
             }
+        }
 
         private static Image GetBitmapFromFile(string path)
         {
@@ -107,27 +102,40 @@ namespace Images
                 var time = DateTime.Now;
                 
                 image.SelectActiveFrame(dim, index);
-                
-                if(image.Size.Height * image.Size.Width > 10000) throw new Exception("The image was too large. Please use an image with less that 10,000 pixels. Your image doesn't need to be more than 100x100.");
+
+                if (image.Size.Height * image.Size.Width > 10000)
+                {
+                    handle(new FrameData(null)
+                    {
+                        Last = true,
+                        Error = new Exception(
+                            "The image was too large. Please use an image with less that 10,000 pixels. Your image doesn't need to be more than 100x100.")
+                    });
+                    yield break;
+                }
 
                 if (size == 0f)
                 {
                     size = Convert.ToInt32(scale == 0f ? Math.Floor((-.47*(((image.Size.Width+image.Size.Height)/2 > 60 ? 45 : (image.Width+image.Height)/2)))+28.72) : scale);
                 }
 
+                var lineHeight = 100 - size;
+
+                var sizeStr = "<size=" + size + "%><line-height=" + lineHeight + "%>";
+
                 Bitmap bitmap;
                 if(shapeCorrection) bitmap = new Bitmap(image, new Size(Convert.ToInt32(image.Size.Width*(1+.03*size)), image.Size.Height));
                 else bitmap = new Bitmap(image);
 
-                var text = "<size=" + size + "%>";
+                var text = sizeStr;
 
                 var pastPixel = new Color();
                 
                 var threshold = 0f;
 
-                while ((System.Text.Encoding.Unicode.GetByteCount(text) > 32768  || text == "<size=" + size + "%>") && threshold < 5f)
+                while ((System.Text.Encoding.Unicode.GetByteCount(text) > 32768  || text == sizeStr) && threshold < 5f)
                 {
-                    text = "<size=" + size + "%>";
+                    text = sizeStr;
                     
                     //I need to figure out how to use bitmap data, but GetPixel is fine for now
                     for (var i = 0; i < bitmap.Height; i++)
@@ -170,7 +178,7 @@ namespace Images
 
                     if (!text.EndsWith("</color>\\n") && !text.EndsWith("</color>")) text += "</color>";
 
-                    text += "</size>";
+                    text += "</line-height></size>";
 
                     threshold += .5f;
 
@@ -197,10 +205,13 @@ namespace Images
 
             image.Dispose();
             
-            handle(new FrameData(null) {Last = true});
+            Log.Info("fails " + fails);
+
+            Exception error = null;
+            if(frames == 1 && fails > 0) error = new Exception("The image is too large to display.");
+            else if(fails > 0) error = new Exception(fails+" frames have been dropped while attempting to display this image.");
             
-            if(frames == 1 && fails > 0) throw new Exception("The image is too large to display.");
-            if(fails > 0) throw new Exception(fails+" frames have been dropped while attempting to display this image.");
+            handle(new FrameData(null) {Last = true, Error = error});
         }
     }
 }

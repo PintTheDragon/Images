@@ -9,6 +9,7 @@ using UnityEngine;
 
 namespace Images.Commands
 {
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class IHint : ICommand
     {
         public string Command => "ihint";
@@ -58,7 +59,7 @@ namespace Images.Commands
 
                         foreach (var player in Player.List)
                         {
-                            player.ShowHint(newText, 2f);
+                            player.ShowHint(newText, 1f);
                         }
                     }, obj.image["name"].Trim().ToLower(), obj.image["isURL"] == "true", obj.scale, false, .4f, obj.compress);
                 Images.Singleton.Coroutines.Add(handle);
@@ -78,16 +79,17 @@ namespace Images.Commands
                 {
                     foreach (var player in Player.List)
                     {
-                        player.ShowHint(frames[0], obj.duration-2f);
+                        player.ShowHint(frames[0], obj.duration-1f);
                     }
                 }
                 yield break;
             }
+            Log.Info("frames: " + frames.Count);
             while (DateTime.UtcNow - startTime < TimeSpan.FromSeconds(obj.duration))
             {
                 foreach (var player in Player.List)
                 {
-                    player.ShowHint(frames[cur % frames.Count], 2f);
+                    player.ShowHint(frames[cur % frames.Count], 1f);
                 }
 
                 yield return Timing.WaitForSeconds(.4f);

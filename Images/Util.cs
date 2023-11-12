@@ -109,6 +109,12 @@ namespace Images
                 
                 coroutine = API.LocationToText(loc, data =>
                 {
+                    if (data.Error != null)
+                    {
+                        Log.Error("Got error for image " + cacheName + ":");
+                        Log.Error(data.Error);
+                    }
+                    
                     if (!data.Last)
                     {
                         Images.Singleton.ImageCache[cacheName].Frames.Add(data.Data);
